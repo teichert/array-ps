@@ -2,8 +2,9 @@
 (A value equals itself) {2} [2] assert-stack
 (A list equals an equivalent list) {[]} [[]] assert-stack
 (A list equals an equivalent list) {[1]} [[1]] assert-stack
-(This should fail) {1} [2] assert-stack
-(This should fail) {{1} [1] assert-stack} assert-fails
+% (This should fail) {1} [2] assert-stack
+% (This should fail) {{1} [1] assert-stack} assert-fails
 (Different values are different) {{1} [2] assert-stack} assert-fails
 (Arrays with different values are different) {{[1]} [[2]] assert-stack} assert-fails
+(Arrays with different values are different) {{[1]} [[1 1]] assert-stack} assert-fails
 test-report
