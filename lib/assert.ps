@@ -8,3 +8,33 @@
 		stop
 	} ifelse
 } def
+
+
+% deep-equal: compares two values, recursing into arrays
+/deep-equal {
+	% stack: actual expected
+	2 copy eq { pop pop true exit } if
+	% If both are arrays, compare lengths and elements
+	2 copy type /arraytype eq exch type /arraytype eq and
+	{
+		% Both are arrays
+		% Save copies
+		2 copy length exch length eq
+		{
+			% Lengths equal, compare elements
+			0 1 2 index length 1 sub {
+				% stack: a b i
+				3 index exch get 3 index exch get
+				deep-equal not { pop pop pop pop false exit } if
+			} for
+			% All elements equal
+			pop pop pop pop true
+		}{
+			% Lengths not equal
+			pop pop pop pop false
+		} ifelse
+	}{
+		% Not both arrays, not equal
+		pop pop false
+	} ifelse
+} def
