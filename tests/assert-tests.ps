@@ -1,5 +1,6 @@
 (A value equals itself) {1} [1] assert-stack
-% (An array with a value equals another array with the same value) [1] [1] assert-equal
-% (An array with a value differs from an array with different values) [1] [1 1] assert-not-equal
+(A value equals itself) {2} [2] assert-stack
+(A list equals an equivalent list) {[]} [[]] assert-stack
+% (A list equals an equivalent list) {[1]} [[1]] assert-stack
 
 test-report

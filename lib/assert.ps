@@ -3,16 +3,6 @@
 /test-passed 0 def
 /test-failed 0 def
 
-% Initialize test reporting
-/test-init {
-  /test-count 0 def
-  /test-passed 0 def
-  /test-failed 0 def
-} def
-
-% Auto-initialize when assert.ps is loaded
-test-init
-
 % Report test results
 /test-report {
   (Test Results:) =
@@ -20,23 +10,6 @@ test-init
   (  Passed: ) print test-passed =
   (  Failed: ) print test-failed =
   test-failed 0 gt { 1 } { 0 } ifelse quit
-} def
-
-/assert-equal {
-	% stack: message actual expected
-	/test-count test-count 1 add def
-	1 index 2 index eq
-	{ 
-		/test-passed test-passed 1 add def
-		pop pop pop % values are equal, remove all
-	}{ 
-		/test-failed test-failed 1 add def
-		(Assertion failed: ) print 3 index =
-		(  Actual:   ) print 2 index ==
-		(  Expected: ) print 1 index ==
-		pop pop pop
-		stop
-	} ifelse
 } def
 
 % assert-stack: executes code block and compares resulting stack with expected
@@ -77,38 +50,5 @@ test-init
 		(  Actual:   ) print actual ==
 		(  Expected: ) print expected ==
 		stop
-	} ifelse
-} def
-
-
-% deep-equal: compares two values, recursing into arrays
-/deep-equal {
-	% stack: actual expected
-	2 copy eq { 
-		pop pop true 
-	}{
-		% If both are arrays, compare lengths and elements
-		2 copy type /arraytype eq exch type /arraytype eq and
-		{
-			% Both are arrays
-			2 copy length exch length eq
-			{
-				% Lengths equal, compare elements
-				true 3 1 roll % result actual expected
-				0 1 2 index length 1 sub {
-					% stack: result actual expected i
-					2 index exch get 2 index exch get
-					deep-equal and % combine with result
-				} for
-				% stack: result actual expected
-				exch pop exch pop % keep only result
-			}{
-				% Lengths not equal
-				pop pop false
-			} ifelse
-		}{
-			% Not both arrays, not equal
-			pop pop false
-		} ifelse
 	} ifelse
 } def
