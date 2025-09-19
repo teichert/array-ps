@@ -1,0 +1,10 @@
+/assert-equal {
+	% stack: actual expected
+	2 copy eq
+	{ pop pop } % values are equal, remove both
+	{ (Assertion failed:\n) print
+		(  Actual:   ) print dup ==
+		(  Expected: ) print exch ==
+		stop
+	} ifelse
+} def
