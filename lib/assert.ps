@@ -112,17 +112,34 @@
 	} ifelse                                       % --
 } def
 
-% assert-fails: ( assertion-block -- )
+% assert-stack-unnamed: ( code-block expected-array -- )
+% Execute code block and compare resulting stack with expected array (no message)
+/assert-stack-unnamed {
+	% Stack: code-block expected-array
+	(Unnamed test)                                 % code-block expected-array message
+	3 1 roll                                       % message code-block expected-array
+	assert-stack                                   % --
+} def
+
+% assert-fails: ( message assertion-block -- )
 % Execute assertion block and verify it fails (increments failure count)
 /assert-fails {
-	% Simple version - just execute and check if test-failed increased
-	/saved-failed test-failed def                   % assertion-block
-	/test-count test-count 1 add def               % assertion-block
+	% Stack: message assertion-block
+	% Track this as a test
+	/test-count test-count 1 add def               % message assertion-block
 	
-	% Enable output suppression for expected failures
-	/suppress-failure-output true def               % assertion-block
+	% Save current failure count
+	/saved-failed test-failed def                   % message assertion-block
 	
-	exec                                            % execute the assertion block
+	% Enable output suppression for expected failures  
+	/suppress-failure-output true def               % message assertion-block
+	
+	% Execute the assertion block with the message on the stack
+	% The assertion block contains calls like: {1} [2] assert-stack
+	% which expects: message code-block expected-array assert-stack
+	exch                                           % assertion-block message
+	exch                                           % message assertion-block
+	exec                                           % message ... (assertion block executes)
 	
 	% Restore output suppression
 	/suppress-failure-output false def              % --
@@ -137,6 +154,6 @@
 	}{
 		% No failure occurred when one was expected
 		/test-failed test-failed 1 add def         % count as failed
-		(Assert-fails failed: Expected assertion to fail but it passed) =
+		(Assert-fails failed: expected assertion to fail but it passed) =
 	} ifelse                                       % --
 } def
