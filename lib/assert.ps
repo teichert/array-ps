@@ -20,6 +20,48 @@
   quit                                             % --
 } def
 
+% arrays-equal: ( array1 array2 -- bool )
+% Compare two arrays for deep equality
+/arrays-equal {
+	2 copy                                          % array1 array2 array1 array2
+	length exch length                              % array1 array2 len1 len2
+	eq                                              % array1 array2 lengths-equal?
+	{
+		% Same length, check each element
+		true                                        % array1 array2 result
+		0                                          % array1 array2 result start-index
+		1                                          % array1 array2 result start-index step
+		3 index length 1 sub                       % array1 array2 result start-index step end-index
+		{
+			% Check element at index
+			dup                                     % array1 array2 result index index
+			4 index exch get                        % array1 array2 result index array1[index]
+			exch                                    % array1 array2 result array1[index] index
+			4 index exch get                        % array1 array2 result array1[index] array2[index]
+			elements-equal                          % array1 array2 result elements-equal?
+			and                                     % array1 array2 combined-result
+		} for                                      % array1 array2 final-result
+		exch pop exch pop                          % final-result
+	}{
+		% Different lengths
+		pop pop false                              % false
+	} ifelse                                       % result
+} def
+
+% elements-equal: ( element1 element2 -- bool )
+% Compare two elements, handling arrays recursively
+/elements-equal {
+	2 copy                                          % elem1 elem2 elem1 elem2
+	type /arraytype eq                              % elem1 elem2 elem1 is-array?
+	exch type /arraytype eq                         % elem1 elem2 is-array? elem2-is-array?
+	and                                             % elem1 elem2 both-arrays?
+	{
+		arrays-equal                               % result
+	}{
+		eq                                         % result
+	} ifelse                                       % result
+} def
+
 % assert-stack: ( message code-block expected-array -- )
 % Execute code block and compare resulting stack with expected array
 /assert-stack {
@@ -38,29 +80,10 @@
 	/actual exch def                               % --
 	cleartomark                                    % --
 	
-	% Compare array lengths
-	actual length                                  % actual-length
-	expected length                                % actual-length expected-length
-	eq                                             % lengths-equal?
-	{
-		% Same length, check each element
-		true                                        % result
-		0                                          % result start-index
-		1                                          % result start-index step
-		actual length 1 sub                        % result start-index step end-index
-		{
-			% Check element at index
-			dup                                     % result index index
-			actual exch get                         % result index actual[index]
-			exch                                    % result actual[index] index
-			expected exch get                       % result actual[index] expected[index]
-			eq                                      % result elements-equal?
-			and                                     % combined-result
-		} for                                      % final-result
-	}{
-		% Different lengths, comparison fails
-		false                                      % false
-	} ifelse                                       % comparison-result
+	% Compare arrays using deep equality
+	actual                                          % actual
+	expected                                        % actual expected
+	arrays-equal                                    % comparison-result
 	
 	% Handle test result
 	{
