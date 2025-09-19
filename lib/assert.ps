@@ -11,6 +11,8 @@
   (Test Results:) =                                % --
   (  Total:             ) print                    % --
   test-count =                                     % --
+  (  Correct:           ) print                    % --
+  test-passed test-correct-failures add =          % --
   (  Passed:            ) print                    % --
   test-passed =                                    % --
   (  Correct Failures:  ) print                    % --
@@ -113,39 +115,28 @@
 % assert-fails: ( assertion-block -- )
 % Execute assertion block and verify it fails (increments failure count)
 /assert-fails {
+	% Simple version - just execute and check if test-failed increased
+	/saved-failed test-failed def                   % assertion-block
 	/test-count test-count 1 add def               % assertion-block
-	/assertion-block exch def                       % --
-	
-	% Save current test counts to detect if assertion incremented them
-	/saved-passed test-passed def                   % --
-	/saved-failed test-failed def                   % --
 	
 	% Enable output suppression for expected failures
-	/suppress-failure-output true def               % --
+	/suppress-failure-output true def               % assertion-block
 	
-	% Execute the assertion block
-	assertion-block exec                            % --
+	exec                                            % execute the assertion block
 	
 	% Restore output suppression
 	/suppress-failure-output false def              % --
 	
-	% Check if the assertion failed as expected
-	test-failed saved-failed gt                     % assertion-failed?
+	% Check if a failure occurred
+	test-failed saved-failed gt                     % did-fail?
 	{
-		% Assertion failed as expected
-		% Reset test counts to saved values since the inner assertion shouldn't count
-		/test-passed saved-passed def              % --
-		/test-failed saved-failed def              % --
-		/test-passed test-passed 1 add def         % --
-		/test-correct-failures test-correct-failures 1 add def % --
+		% Expected failure occurred
+		/test-failed saved-failed def              % reset failure count
+		/test-passed test-passed 1 add def         % count as passed
+		/test-correct-failures test-correct-failures 1 add def % track correct failure
 	}{
-		% Assertion passed when it should have failed
-		% Reset test counts to saved values
-		/test-passed saved-passed def              % --
-		/test-failed saved-failed def              % --
-		/test-failed test-failed 1 add def         % --
+		% No failure occurred when one was expected
+		/test-failed test-failed 1 add def         % count as failed
 		(Assert-fails failed: Expected assertion to fail but it passed) =
-		(  Assertion: ) print                       % --
-		assertion-block ==                          % --
 	} ifelse                                       % --
 } def
