@@ -1,54 +1,82 @@
-% Test tracking variables
+% Test tracking variables (exception: test framework needs global state)
 /test-count 0 def
 /test-passed 0 def
 /test-failed 0 def
 
-% Report test results
+% test-report: ( -- )
+% Report test results and exit with appropriate code
 /test-report {
-  (Test Results:) =
-  (  Total:  ) print test-count =
-  (  Passed: ) print test-passed =
-  (  Failed: ) print test-failed =
-  test-failed 0 gt { 1 } { 0 } ifelse quit
+  (Test Results:) =                                % --
+  (  Total:  ) print                               % --
+  test-count =                                     % --
+  (  Passed: ) print                               % --
+  test-passed =                                    % --
+  (  Failed: ) print                               % --
+  test-failed =                                    % --
+  test-failed 0 gt                                 % bool
+  { 1 }                                            % 1
+  { 0 }                                            % 0
+  ifelse                                           % exit-code
+  quit                                             % --
 } def
 
-% assert-stack: executes code block and compares resulting stack with expected
+% assert-stack: ( message code-block expected-array -- )
+% Execute code block and compare resulting stack with expected array
 /assert-stack {
-	% stack: message code-block expected-stack
-	/test-count test-count 1 add def
+	/test-count test-count 1 add def               % message code-block expected-array
 	
-	% Save inputs
-	/expected exch def
-	/code-block exch def
-	/message exch def
+	% Save inputs to local variables
+	/expected exch def                              % message code-block
+	/code-block exch def                           % message
+	/message exch def                              % --
 	
-	% Execute the code block and capture the result
-	mark code-block exec counttomark array astore /actual exch def
-	cleartomark
+	% Execute code block and capture result as array
+	mark                                           % mark
+	code-block exec                                % mark ...results...
+	counttomark                                    % mark ...results... count
+	array astore                                   % actual-array
+	/actual exch def                               % --
+	cleartomark                                    % --
 	
-	% Simple array comparison
-	actual length expected length eq
+	% Compare array lengths
+	actual length                                  % actual-length
+	expected length                                % actual-length expected-length
+	eq                                             % lengths-equal?
 	{
-		% Same length, check elements
-		true % start with true
-		0 1 actual length 1 sub {
-			% stack: result index
-			dup actual exch get
-			exch expected exch get
-			eq and % combine with running result
-		} for
+		% Same length, check each element
+		true                                        % result
+		0                                          % result start-index
+		1                                          % result start-index step
+		actual length 1 sub                        % result start-index step end-index
+		{
+			% Check element at index
+			dup                                     % result index index
+			actual exch get                         % result index actual[index]
+			exch                                    % result actual[index] index
+			expected exch get                       % result actual[index] expected[index]
+			eq                                      % result elements-equal?
+			and                                     % combined-result
+		} for                                      % final-result
 	}{
-		false % different lengths
-	} ifelse
+		% Different lengths, comparison fails
+		false                                      % false
+	} ifelse                                       % comparison-result
 	
+	% Handle test result
 	{
-		/test-passed test-passed 1 add def
+		% Test passed
+		/test-passed test-passed 1 add def         % --
 	}{
-		/test-failed test-failed 1 add def
-		(Assertion failed: ) print message =
-		(  Code:     ) print code-block ==
-		(  Actual:   ) print actual ==
-		(  Expected: ) print expected ==
-		stop
-	} ifelse
+		% Test failed
+		/test-failed test-failed 1 add def         % --
+		(Assertion failed: ) print                 % --
+		message =                                   % --
+		(  Code:     ) print                        % --
+		code-block ==                               % --
+		(  Actual:   ) print                        % --
+		actual ==                                   % --
+		(  Expected: ) print                        % --
+		expected ==                                 % --
+		stop                                        % --
+	} ifelse                                       % --
 } def
