@@ -6,6 +6,7 @@ Rules:
 and make sure that everything still passes; then repeat)
 - Test names should be complete sentences
 - postscript functions should never use global variables (only globally definied, reusable functions that represent a clean abstraction) [except in the case of the test framework where we need to keep track of test counts]
+- always simplify by extracting reusable functionality into testable sub parts (and add tests for those sub parts so that the tests for te things that use them can be simpler)
 - functions should be small and simple
 - each line of a function should have very few operations
 - each line of a function should have the resulting stack state indicated in a comment to the right of the line

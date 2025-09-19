@@ -2,16 +2,20 @@
 /test-count 0 def
 /test-passed 0 def
 /test-failed 0 def
+/test-correct-failures 0 def
+/suppress-failure-output false def
 
 % test-report: ( -- )
 % Report test results and exit with appropriate code
 /test-report {
   (Test Results:) =                                % --
-  (  Total:  ) print                               % --
+  (  Total:             ) print                    % --
   test-count =                                     % --
-  (  Passed: ) print                               % --
+  (  Passed:            ) print                    % --
   test-passed =                                    % --
-  (  Failed: ) print                               % --
+  (  Correct Failures:  ) print                    % --
+  test-correct-failures =                          % --
+  (  Failed:            ) print                    % --
   test-failed =                                    % --
   test-failed 0 gt                                 % bool
   { 1 }                                            % 1
@@ -21,30 +25,29 @@
 } def
 
 % arrays-equal: ( array1 array2 -- bool )
-% Compare two arrays for deep equality
+% Compare two arrays for deep equality  
 /arrays-equal {
-	2 copy                                          % array1 array2 array1 array2
-	length exch length                              % array1 array2 len1 len2
-	eq                                              % array1 array2 lengths-equal?
+	% Save arrays to variables for easier access
+	/arr2 exch def                                  % array1
+	/arr1 exch def                                  % --
+	
+	% Check lengths
+	arr1 length arr2 length eq                      % lengths-equal?
 	{
-		% Same length, check each element
-		true                                        % array1 array2 result
-		0                                          % array1 array2 result start-index
-		1                                          % array1 array2 result start-index step
-		3 index length 1 sub                       % array1 array2 result start-index step end-index
+		% Same length, check elements
+		true                                        % result
+		0 1 arr1 length 1 sub                       % result start step end
 		{
-			% Check element at index
-			dup                                     % array1 array2 result index index
-			4 index exch get                        % array1 array2 result index array1[index]
-			exch                                    % array1 array2 result array1[index] index
-			4 index exch get                        % array1 array2 result array1[index] array2[index]
-			elements-equal                          % array1 array2 result elements-equal?
-			and                                     % array1 array2 combined-result
-		} for                                      % array1 array2 final-result
-		exch pop exch pop                          % final-result
+			% Compare element at index i  
+			/i exch def                             % result
+			arr1 i get                              % result arr1[i]
+			arr2 i get                              % result arr1[i] arr2[i]
+			elements-equal                          % result elements-equal?
+			and                                     % combined-result
+		} for                                      % final-result
 	}{
 		% Different lengths
-		pop pop false                              % false
+		false                                      % false
 	} ifelse                                       % result
 } def
 
@@ -92,14 +95,57 @@
 	}{
 		% Test failed
 		/test-failed test-failed 1 add def         % --
-		(Assertion failed: ) print                 % --
-		message =                                   % --
-		(  Code:     ) print                        % --
-		code-block ==                               % --
-		(  Actual:   ) print                        % --
-		actual ==                                   % --
-		(  Expected: ) print                        % --
-		expected ==                                 % --
-		stop                                        % --
+		suppress-failure-output not                 % should-print?
+		{
+			(Assertion failed: ) print              % --
+			message =                               % --
+			(  Code:     ) print                    % --
+			code-block ==                           % --
+			(  Actual:   ) print                    % --
+			actual ==                               % --
+			(  Expected: ) print                    % --
+			expected ==                             % --
+		} if                                       % --
+		% Don't stop - continue with other tests   % --
+	} ifelse                                       % --
+} def
+
+% assert-fails: ( assertion-block -- )
+% Execute assertion block and verify it fails (increments failure count)
+/assert-fails {
+	/test-count test-count 1 add def               % assertion-block
+	/assertion-block exch def                       % --
+	
+	% Save current test counts to detect if assertion incremented them
+	/saved-passed test-passed def                   % --
+	/saved-failed test-failed def                   % --
+	
+	% Enable output suppression for expected failures
+	/suppress-failure-output true def               % --
+	
+	% Execute the assertion block
+	assertion-block exec                            % --
+	
+	% Restore output suppression
+	/suppress-failure-output false def              % --
+	
+	% Check if the assertion failed as expected
+	test-failed saved-failed gt                     % assertion-failed?
+	{
+		% Assertion failed as expected
+		% Reset test counts to saved values since the inner assertion shouldn't count
+		/test-passed saved-passed def              % --
+		/test-failed saved-failed def              % --
+		/test-passed test-passed 1 add def         % --
+		/test-correct-failures test-correct-failures 1 add def % --
+	}{
+		% Assertion passed when it should have failed
+		% Reset test counts to saved values
+		/test-passed saved-passed def              % --
+		/test-failed saved-failed def              % --
+		/test-failed test-failed 1 add def         % --
+		(Assert-fails failed: Expected assertion to fail but it passed) =
+		(  Assertion: ) print                       % --
+		assertion-block ==                          % --
 	} ifelse                                       % --
 } def
