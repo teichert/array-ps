@@ -39,32 +39,76 @@ test-init
 	} ifelse
 } def
 
+% assert-stack: executes code block and compares resulting stack with expected
+/assert-stack {
+	% stack: message code-block expected-stack
+	/test-count test-count 1 add def
+	
+	% Save inputs
+	/expected exch def
+	/code-block exch def
+	/message exch def
+	
+	% Execute the code block and capture the result
+	mark code-block exec counttomark array astore /actual exch def
+	cleartomark
+	
+	% Simple array comparison
+	actual length expected length eq
+	{
+		% Same length, check elements
+		true % start with true
+		0 1 actual length 1 sub {
+			% stack: result index
+			dup actual exch get
+			exch expected exch get
+			eq and % combine with running result
+		} for
+	}{
+		false % different lengths
+	} ifelse
+	
+	{
+		/test-passed test-passed 1 add def
+	}{
+		/test-failed test-failed 1 add def
+		(Assertion failed: ) print message =
+		(  Code:     ) print code-block ==
+		(  Actual:   ) print actual ==
+		(  Expected: ) print expected ==
+		stop
+	} ifelse
+} def
+
 
 % deep-equal: compares two values, recursing into arrays
 /deep-equal {
 	% stack: actual expected
-	2 copy eq { pop pop true exit } if
-	% If both are arrays, compare lengths and elements
-	2 copy type /arraytype eq exch type /arraytype eq and
-	{
-		% Both are arrays
-		% Save copies
-		2 copy length exch length eq
-		{
-			% Lengths equal, compare elements
-			0 1 2 index length 1 sub {
-				% stack: a b i
-				3 index exch get 3 index exch get
-				deep-equal not { pop pop pop pop false exit } if
-			} for
-			% All elements equal
-			pop pop pop pop true
-		}{
-			% Lengths not equal
-			pop pop pop pop false
-		} ifelse
+	2 copy eq { 
+		pop pop true 
 	}{
-		% Not both arrays, not equal
-		pop pop false
+		% If both are arrays, compare lengths and elements
+		2 copy type /arraytype eq exch type /arraytype eq and
+		{
+			% Both are arrays
+			2 copy length exch length eq
+			{
+				% Lengths equal, compare elements
+				true 3 1 roll % result actual expected
+				0 1 2 index length 1 sub {
+					% stack: result actual expected i
+					2 index exch get 2 index exch get
+					deep-equal and % combine with result
+				} for
+				% stack: result actual expected
+				exch pop exch pop % keep only result
+			}{
+				% Lengths not equal
+				pop pop false
+			} ifelse
+		}{
+			% Not both arrays, not equal
+			pop pop false
+		} ifelse
 	} ifelse
 } def
