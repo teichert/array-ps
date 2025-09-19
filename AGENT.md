@@ -5,3 +5,6 @@ Rules:
 - Use the principles of tdd. (only add a single test at a time; make it fail; then ask me if you should continue; then add the minimum code to make it pass; then refactor 
 and make sure that everything still passes; then repeat)
 - Test names should be complete sentences
+- postscript functions should never use global variables (only globally definied, reusable functions that represent a clean abstraction)
+- functions should be small and have the stack state documented at each line
+- stack effects should be clearly documented in header comments
