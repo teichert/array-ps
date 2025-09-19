@@ -5,6 +5,63 @@
 /test-correct-failures 0 def
 /suppress-failure-output false def
 
+% capture-stack: ( code-block -- array )
+% Execute code block and capture resulting stack as array
+/capture-stack {
+	mark                                           % code-block mark
+	exch                                           % mark code-block
+	exec                                           % mark ...results...
+	counttomark                                    % mark ...results... count
+	array astore                                   % array
+	exch                                           % array mark
+	pop                                            % array
+} def
+
+% increment-test-count: ( -- )
+% Increment total test count
+/increment-test-count {
+	/test-count test-count 1 add def               % --
+} def
+
+% increment-passed: ( -- )
+% Increment passed test count
+/increment-passed {
+	/test-passed test-passed 1 add def             % --
+} def
+
+% increment-failed: ( -- )
+% Increment failed test count
+/increment-failed {
+	/test-failed test-failed 1 add def             % --
+} def
+
+% increment-correct-failures: ( -- )
+% Increment correct failure count
+/increment-correct-failures {
+	/test-correct-failures test-correct-failures 1 add def % --
+} def
+
+% print-failure: ( message code-block actual expected -- )
+% Print failure details if output is not suppressed
+/print-failure {
+	suppress-failure-output not                     % message code-block actual expected should-print?
+	{
+		(Assertion failed: ) print                  % message code-block actual expected
+		4 1 roll                                    % code-block actual expected message
+		=                                           % code-block actual expected
+		(  Code:     ) print                        % code-block actual expected
+		3 1 roll                                    % actual expected code-block
+		==                                          % actual expected
+		(  Actual:   ) print                        % actual expected
+		exch                                        % expected actual
+		==                                          % expected
+		(  Expected: ) print                        % expected
+		==                                          % --
+	}{
+		pop pop pop pop                             % --
+	} ifelse                                       % --
+} def
+
 % test-report: ( -- )
 % Report test results and exit with appropriate code
 /test-report {
@@ -70,90 +127,76 @@
 % assert-stack: ( message code-block expected-array -- )
 % Execute code block and compare resulting stack with expected array
 /assert-stack {
-	/test-count test-count 1 add def               % message code-block expected-array
-	
-	% Save inputs to local variables
-	/expected exch def                              % message code-block
-	/code-block exch def                           % message
-	/message exch def                              % --
-	
-	% Execute code block and capture result as array
-	mark                                           % mark
-	code-block exec                                % mark ...results...
-	counttomark                                    % mark ...results... count
-	array astore                                   % actual-array
-	/actual exch def                               % --
-	cleartomark                                    % --
-	
-	% Compare arrays using deep equality
-	actual                                          % actual
-	expected                                        % actual expected
-	arrays-equal                                    % comparison-result
-	
-	% Handle test result
+	increment-test-count                            % message code-block expected-array
+	2 copy                                          % message code-block expected-array code-block expected-array
+	exch                                            % message code-block expected-array expected-array code-block
+	capture-stack                                   % message code-block expected-array expected-array actual-array
+	exch                                            % message code-block expected-array actual-array expected-array
+	arrays-equal                                    % message code-block expected-array passed?
 	{
-		% Test passed
-		/test-passed test-passed 1 add def         % --
+		increment-passed                            % message code-block expected-array
+		pop pop pop                                 % --
 	}{
-		% Test failed
-		/test-failed test-failed 1 add def         % --
-		suppress-failure-output not                 % should-print?
-		{
-			(Assertion failed: ) print              % --
-			message =                               % --
-			(  Code:     ) print                    % --
-			code-block ==                           % --
-			(  Actual:   ) print                    % --
-			actual ==                               % --
-			(  Expected: ) print                    % --
-			expected ==                             % --
-		} if                                       % --
-		% Don't stop - continue with other tests   % --
+		increment-failed                            % message code-block expected-array
+		2 index                                     % message code-block expected-array code-block
+		capture-stack                               % message code-block expected-array actual-array
+		print-failure                               % --
 	} ifelse                                       % --
 } def
 
 % assert-stack-unnamed: ( code-block expected-array -- )
 % Execute code block and compare resulting stack with expected array (no message)
 /assert-stack-unnamed {
-	% Stack: code-block expected-array
 	(Unnamed test)                                 % code-block expected-array message
 	3 1 roll                                       % message code-block expected-array
 	assert-stack                                   % --
 } def
 
+% suppress-output: ( -- )
+% Enable output suppression for expected failures
+/suppress-output {
+	/suppress-failure-output true def               % --
+} def
+
+% restore-output: ( -- )
+% Restore normal output after expected failures
+/restore-output {
+	/suppress-failure-output false def              % --
+} def
+
+% get-failure-count: ( -- count )
+% Get current failure count
+/get-failure-count {
+	test-failed                                    % count
+} def
+
+% handle-expected-failure: ( original-failures -- )
+% Handle case where expected failure occurred
+/handle-expected-failure {
+	/test-failed exch def                          % reset failure count to original
+	increment-passed                               % --
+	increment-correct-failures                     % --
+} def
+
 % assert-fails: ( message assertion-block -- )
 % Execute assertion block and verify it fails (increments failure count)
 /assert-fails {
-	% Stack: message assertion-block
-	% Track this as a test
-	/test-count test-count 1 add def               % message assertion-block
-	
-	% Save current failure count
-	/saved-failed test-failed def                   % message assertion-block
-	
-	% Enable output suppression for expected failures  
-	/suppress-failure-output true def               % message assertion-block
-	
-	% Execute the assertion block with the message on the stack
-	% The assertion block contains calls like: {1} [2] assert-stack
-	% which expects: message code-block expected-array assert-stack
-	exch                                           % assertion-block message
-	exch                                           % message assertion-block
-	exec                                           % message ... (assertion block executes)
-	
-	% Restore output suppression
-	/suppress-failure-output false def              % --
-	
-	% Check if a failure occurred
-	test-failed saved-failed gt                     % did-fail?
+	increment-test-count                            % message assertion-block
+	get-failure-count                               % message assertion-block original-failures
+	3 1 roll                                        % original-failures message assertion-block
+	suppress-output                                 % original-failures message assertion-block
+	exch                                           % original-failures assertion-block message
+	exch                                           % original-failures message assertion-block
+	exec                                           % original-failures (assertion block executes)
+	restore-output                                 % original-failures
+	dup                                            % original-failures original-failures
+	get-failure-count                              % original-failures original-failures current-failures
+	lt                                             % original-failures failure-occurred?
 	{
-		% Expected failure occurred
-		/test-failed saved-failed def              % reset failure count
-		/test-passed test-passed 1 add def         % count as passed
-		/test-correct-failures test-correct-failures 1 add def % track correct failure
+		handle-expected-failure                    % --
 	}{
-		% No failure occurred when one was expected
-		/test-failed test-failed 1 add def         % count as failed
+		pop                                        % --
+		increment-failed                           % --
 		(Assert-fails failed: expected assertion to fail but it passed) =
 	} ifelse                                       % --
 } def
