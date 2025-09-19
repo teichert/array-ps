@@ -1,10 +1,40 @@
+% Test tracking variables
+/test-count 0 def
+/test-passed 0 def
+/test-failed 0 def
+
+% Initialize test reporting
+/test-init {
+  /test-count 0 def
+  /test-passed 0 def
+  /test-failed 0 def
+} def
+
+% Auto-initialize when assert.ps is loaded
+test-init
+
+% Report test results
+/test-report {
+  (Test Results:) =
+  (  Total:  ) print test-count =
+  (  Passed: ) print test-passed =
+  (  Failed: ) print test-failed =
+  test-failed 0 gt { 1 } { 0 } ifelse quit
+} def
+
 /assert-equal {
-	% stack: actual expected
-	2 copy eq
-	{ pop pop } % values are equal, remove both
-	{ (Assertion failed:\n) print
-		(  Actual:   ) print dup ==
-		(  Expected: ) print exch ==
+	% stack: message actual expected
+	/test-count test-count 1 add def
+	1 index 2 index eq
+	{ 
+		/test-passed test-passed 1 add def
+		pop pop pop % values are equal, remove all
+	}{ 
+		/test-failed test-failed 1 add def
+		(Assertion failed: ) print 3 index =
+		(  Actual:   ) print 2 index ==
+		(  Expected: ) print 1 index ==
+		pop pop pop
 		stop
 	} ifelse
 } def
