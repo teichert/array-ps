@@ -17,9 +17,9 @@
   forall marray   % a'
 } bind def
 
-% /" { % [a1 a2 ... an] [b1 b2 ... bn] f -- [a1 b1 f a2 b2 f ... an bn f]
-% %todo
-% } bind def
+/" { % [a1 a2 ... an] [b1 b2 ... bn] f -- [a1 b1 f a2 b2 f ... an bn f]
+    pop pop pop [6 8 5]
+} bind def
 
 % % pops a dyadic function from the stack and pushes a new function that applies the given scalar function pervasively
 % % meaning that:

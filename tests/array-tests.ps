@@ -6,5 +6,9 @@
 (range1 of 5 is [0 1 2 3 4]) {5 range1} [[0 1 2 3 4]] assert-stack
 (each1 can make a new array with 2 added to each element) {[1 2 3] {2 +} '} [[3 4 5]] assert-stack
 (each1 doesn't change the original array) {[1 2 3] dup {2 +} '} [[1 2 3] [3 4 5]] assert-stack
+(each2 can make a new array that performs an elementwise sum of two other arrays)
+    {[1 2 3] [5 6 2] {+} "} [[6 8 5]] assert-stack
+(each2 can make a new array that performs an elementwise sum of two other arrays)
+    {[2 0 7] [5 6 3] {+} "} [[7 6 10]] assert-stack
 % (pervasive add applies to scalars) {5 2 {add} pervasive exec} [7] assert-stack
 test-report
