@@ -12,9 +12,21 @@
   marray
 } bind def
 
-/each1 { % [v1 v2 ... vn] f -- [v1 f v2 f ... vn f]
+/' { % [v1 v2 ... vn] f -- [v1 f v2 f ... vn f]
   mark 3 1 roll   % m a f
   forall marray   % a'
 } bind def
+
+% /" { % [a1 a2 ... an] [b1 b2 ... bn] f -- [a1 b1 f a2 b2 f ... an bn f]
+% %todo
+% } bind def
+
+% % pops a dyadic function from the stack and pushes a new function that applies the given scalar function pervasively
+% % meaning that:
+% % - if both operands are not arrays, then the raw function is called;
+% % - if exactly one of the operands is not an array then the new function is recursively called (via each1) on each of the elements of the array
+% /pervasive { % f -- f'
+ 
+% } bind def
 
 /+ { add } def

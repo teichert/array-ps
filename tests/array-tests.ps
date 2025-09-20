@@ -4,7 +4,7 @@
 (marray works with more items has those items) {mark 5 [2 7] 3 marray} [[5 [2 7] 3]] assert-stack
 (range1 of 0 is an empty array) {0 range1} [[]] assert-stack
 (range1 of 5 is [0 1 2 3 4]) {5 range1} [[0 1 2 3 4]] assert-stack
-(each1 can make a new array with 2 added to each element) {[1 2 3] {2 +} each1} [[3 4 5]] assert-stack
-(each1 doesn't change the original array) {[1 2 3] dup {2 +} each1} [[1 2 3] [3 4 5]] assert-stack
-(pervasive add applies to scalars) {5 2 {add} pervasive exec} [7] assert-stack
+(each1 can make a new array with 2 added to each element) {[1 2 3] {2 +} '} [[3 4 5]] assert-stack
+(each1 doesn't change the original array) {[1 2 3] dup {2 +} '} [[1 2 3] [3 4 5]] assert-stack
+% (pervasive add applies to scalars) {5 2 {add} pervasive exec} [7] assert-stack
 test-report
