@@ -18,7 +18,22 @@
 } bind def
 
 /" { % [a1 a2 ... an] [b1 b2 ... bn] f -- [a1 b1 f a2 b2 f ... an bn f]
-    pop pop pop [6 8 5]
+  3 1 roll mark        % f [a] [b] mark
+  1 index length 1 sub % f [a] [b] mark len-1
+  0 1                  % f [a] [b] mark len-1 0 1
+  3 -1 roll            % f [a] [b] mark 0 1 len-1
+  {
+    counttomark index 1 add % f [a] [b] mark ... i [a]
+    1 index get             % f [a] [b] mark ... i ai
+    counttomark index       % f [a] [b] mark ... i ai [b]
+    3 -1 roll               % f [a] [b] mark ... ai [b] i
+    2 index get             % f [a] [b] mark ... ai bi
+    counttomark index 2 add % f [a] [b] mark ... ai bi f
+    exec
+  } for
+  marray                    % f [a] [b] [r]
+  4 1 roll                  % [r] f [a] [b]
+  pop pop pop               % [r]
 } bind def
 
 % % pops a dyadic function from the stack and pushes a new function that applies the given scalar function pervasively
