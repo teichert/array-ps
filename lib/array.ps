@@ -4,4 +4,12 @@
   exch pop                 % a
 } bind def
 
+/range1 { % n -- [0 1 2 ... n-1]
+  mark 0 1             % n mark 0 1
+  4 -1 roll            % mark 0 1 n
+  1 sub                % mark 0 1 n-1
+  {} for               % mark 0 1 2 ... n-1
+  marray
+} bind def
+
 /+ { add } def
