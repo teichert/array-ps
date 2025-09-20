@@ -27,30 +27,29 @@
 } def
 
 % arrays-equal: ( array1 array2 -- bool )
-% Compare two arrays for deep equality  
+% Compare two arrays for equality
 /arrays-equal {
-	% Save arrays to variables for easier access
-	/arr2 exch def                                  % array1
-	/arr1 exch def                                  % --
+	% Create new dictionary to avoid variable conflicts in recursion
+	5 dict begin
+	/arr2 exch def
+	/arr1 exch def
 	
-	% Check lengths
-	arr1 length arr2 length eq                      % lengths-equal?
+	% Check lengths first
+	arr1 length arr2 length eq
 	{
-		% Same length, check elements
-		true                                        % result
-		0 1 arr1 length 1 sub                       % result start step end
-		{
-			% Compare element at index i  
-			/i exch def                             % result
-			arr1 i get                              % result arr1[i]
-			arr2 i get                              % result arr1[i] arr2[i]
-			elements-equal                          % result elements-equal?
-			and                                     % combined-result
-		} for                                      % final-result
+		% Same length - check each element
+		true  % Start with true, will AND with each comparison
+		0 1 arr1 length 1 sub {
+			% i is the loop variable
+			dup arr1 exch get    % true i arr1[i]
+			exch arr2 exch get   % true arr1[i] arr2[i]
+			elements-equal and   % true && elements-equal(arr1[i], arr2[i])
+		} for
 	}{
 		% Different lengths
-		false                                      % false
-	} ifelse                                       % result
+		false
+	} ifelse
+	end  % Close the dictionary
 } def
 
 % elements-equal: ( element1 element2 -- bool )

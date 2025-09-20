@@ -1,1 +1,7 @@
+% creates an array consisting of items from the most recent mark
+/marray {  % mark v1 v2 ... vn -- a
+  counttomark array astore % m a
+  exch pop                 % a
+} bind def
+
 /+ { add } def
