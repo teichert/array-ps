@@ -31,28 +31,32 @@
     counttomark 4 add -3 roll %  m a1 ... as as+1 f ... an f [a1 a2 ... an] f s
     pop pop pop               %  m a1 ... as as+1 f ... an
     ]
-} def
+} bind def
 
-/overk { % a1 a2 ... ak f s -- [a1[1] ... ak[1] a1[s] ... ak[s] a1[s+1] ... ak[s+1] f ... a1[n] ... ak[n] f]
+/overk { % a1 a2 ... ak f k s -- [a1[1] ... ak[1] a1[s] ... ak[s] a1[s+1] ... ak[s+1] f ... a1[n] ... ak[n] f]
 
-} def
+} bind def
+
+/overB { % [a1 a2 ... an] f s -- [a1 ... as as+1 f ... an f]
+    1 exch overk
+} bind def
 
 /each { % [a1 a2 ... an] f -- [a1 f a2 f ... an f]
     0 over
-} def
+} bind def
 
 /zipwith { % a1 a2 ... ak f -- [a1[s1] ... ak[1] f ... a1[n] ... ak[n] f]
     0 overk
-} def
+} bind def
 
 /reduce { % [a1 a2 ... an] f -- [a1 f a2 f ... an f]
     1 over aload pop
-} def
+} bind def
 
 /xdebug { % f --
     dup debug
     exec
-} def
+} bind def
 
 % (sum reduce over an array should give the sum) {[5 3 2] {(before) debug add (after) debug} "} [10] assert-stack
 (sum reduce over an array should give the sum) {[5 3 2] {add} reduce} [10] assert-stack
