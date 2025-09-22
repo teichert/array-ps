@@ -45,7 +45,7 @@
     0 over
 } bind def
 
-/zipwith { % a1 a2 ... ak f -- [a1[s1] ... ak[1] f ... a1[n] ... ak[n] f]
+/zipwith { % a1 a2 ... ak k f -- [a1[s1] ... ak[1] f ... a1[n] ... ak[n] f]
     0 overk
 } bind def
 
@@ -60,7 +60,7 @@
 
 % (sum reduce over an array should give the sum) {[5 3 2] {(before) debug add (after) debug} "} [10] assert-stack
 (sum reduce over an array should give the sum) {[5 3 2] {add} reduce} [10] assert-stack
-(sum zipwith should be elementwise sum) {[5 3 2] [8 3 1] {add} zipwith} [[13 6 3]] assert-stack
+(sum zipwith should be elementwise sum) {[5 3 2] [8 3 1] {add} 2 zipwith} [[13 6 3]] assert-stack
 (mapping the double over an array should double each element) {[5 3 2] {dup} each} [[5 5 3 3 2 2]] assert-stack
 (mapping the double over an array should double each element) {[5 3 2] {dup add} each} [[10 6 4]] assert-stack
 (mapping over and empty array should give an empty array) {[] {dup add} each} [[]] assert-stack
