@@ -136,11 +136,16 @@
 			stack-depth 0 eq {
 				(    empty) =
 			}{
-				tmpstack length 1 sub -1 0 {       % reverse order 
-					(    ) print                    % indent each item
-					tmpstack exch get               % get stack item
-					==                              % print with == for nested structures
+				(    ) print                        % initial indent
+				tmpstack length 1 sub -1 0 {       % reverse order (bottom to top)
+					dup                             % i i  
+					tmpstack exch get               % i stack-item
+					=only                           % print without newline
+					0 gt {                          % not the first item (index > 0)?
+						( ) print                   % add space separator
+					} if
 				} for
+				() =                                % final newline
 			} ifelse
 		} if                                       % --
 	}{
