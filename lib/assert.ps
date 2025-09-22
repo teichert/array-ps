@@ -7,7 +7,6 @@
 
 % Global variables for stack capture during exceptions
 /tmpstack [] def
-/tmpstackrev [] def
 
 % test-report: ( -- )
 % Report test results and exit with appropriate code
@@ -100,12 +99,12 @@
 		dup /stack-depth exch def                  % count (save depth)
 		
 		% Capture stack items simply - array will know its own length
-		dup 0 gt {
-			dup array /tmpstack exch def           % count (create array of correct size)
-			% Use simple forward loop - store stack position i at array position i
+		dup 1 gt {                                 % need at least 2 items (count + something)
+			dup 1 sub array /tmpstack exch def     % count-1 array (exclude the count itself)
+			% Use simple forward loop 
 			0 1 tmpstack length 1 sub {
-				dup 1 add index                    % i stack-item
-				tmpstack 3 1 roll put             % (store stack[i+1] at array[i])
+				dup 2 add index                    % i stack-item (skip count + loop var)
+				tmpstack 3 1 roll put             % (store stack item at array[i])
 			} for
 			pop                                    % (remove count)
 		}{
