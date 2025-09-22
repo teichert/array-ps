@@ -138,9 +138,11 @@
 			}{
 				(    ) print                        % initial indent
 				tmpstack length 1 sub -1 0 {       % reverse order (top to bottom in array becomes bottom to top in display)
-					tmpstack exch get               % get stack item
-					dup =only                       % print without newline
-					tmpstack length 1 sub exch gt { % not the last item?
+					dup                             % i i
+					tmpstack exch get               % i stack-item
+					dup =only                       % i stack-item (print without newline)
+					pop                             % i
+					0 gt {                          % not the first item (index > 0)?
 						( ) print                   % add space separator
 					} if
 				} for
