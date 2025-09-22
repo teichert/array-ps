@@ -12,10 +12,16 @@
   marray
 } bind def
 
-/' { % [v1 v2 ... vn] f n s -- [v1 f v2 f ... vn f]
+/' { % a1 a2 ... an f n s -- [v1 f v2 f ... vn f]
   [ % as f n s [
     % take from 0 up to s-1
-    counttomark 
+    0
+    1
+    counttomark 1 add index
+    1 sub
+    {
+      counttomark 
+    }
     % execute f
     % take from s-1 to n-1, executing f after each
     3 2 roll    % as f [ n s
