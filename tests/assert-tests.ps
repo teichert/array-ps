@@ -8,4 +8,5 @@
 (Different values are different) {{1} [2] assert-stack} assert-fails
 (Arrays with different values are different) {{[1]} [[2]] assert-stack} assert-fails
 (Arrays with different values are different) {{[1]} [[1 1]] assert-stack} assert-fails
+(Uncaught exceptions are failures that are caught) {{pop} [] assert-stack} assert-fails
 test-report

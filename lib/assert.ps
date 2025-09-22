@@ -80,25 +80,19 @@
 	/code-block exch def                           % message
 	/message exch def                              % --
 	
-	% Execute code block and capture result as array
-	mark                                           % mark
-	code-block exec                                % mark ...results...
-	counttomark                                    % mark ...results... count
-	array astore                                   % actual-array
-	/actual exch def                               % --
-	cleartomark                                    % --
-	
-	% Compare arrays using deep equality
-	actual                                          % actual
-	expected                                        % actual expected
-	arrays-equal                                    % comparison-result
-	
-	% Handle test result
+	% Execute code block with error handling and capture result as array
 	{
-		% Test passed
-		/test-passed test-passed 1 add def         % --
-	}{
-		% Test failed
+		mark                                       % mark
+		code-block exec                            % mark ...results...
+		counttomark                                % mark ...results... count
+		array astore                               % actual-array
+		/actual exch def                           % --
+		cleartomark                                % --
+		true                                       % success
+	} stopped                                      % success stopped?
+	{
+		% Exception occurred - clean up stack and treat as failure
+		clear                                      % clear entire stack to be safe
 		/test-failed test-failed 1 add def         % --
 		suppress-failure-output not                 % should-print?
 		{
@@ -106,12 +100,40 @@
 			message =                               % --
 			(  Code block:      ) print             % --
 			code-block-for-printing ==              % --
-			(  Actual stack:    ) print             % --
-			actual ==                               % --
-			(  Expected stack:  ) print             % --
-			expected ==                             % --
+			(  Exception occurred during execution) =
 		} if                                       % --
-		% Don't stop - continue with other tests   % --
+	}{
+		% No exception occurred
+		{
+			% Normal execution path - compare results
+			actual                                 % actual
+			expected                               % actual expected
+			arrays-equal                           % comparison-result
+			
+			% Handle test result
+			{
+				% Test passed
+				/test-passed test-passed 1 add def % --
+			}{
+				% Test failed
+				/test-failed test-failed 1 add def % --
+				suppress-failure-output not         % should-print?
+				{
+					(Assertion failed: ) print      % --
+					message =                       % --
+					(  Code block:      ) print     % --
+					code-block-for-printing ==      % --
+					(  Actual stack:    ) print     % --
+					actual ==                       % --
+					(  Expected stack:  ) print     % --
+					expected ==                     % --
+				} if                               % --
+			} ifelse                               % --
+		}{
+			% This shouldn't happen (success=false but no exception)
+			/test-failed test-failed 1 add def     % --
+			(Internal error in assert-stack) =     % --
+		} ifelse                                   % --
 	} ifelse                                       % --
 } def
 
