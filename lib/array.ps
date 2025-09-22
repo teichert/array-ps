@@ -12,9 +12,18 @@
   marray
 } bind def
 
-/' { % [v1 v2 ... vn] f -- [v1 f v2 f ... vn f]
-  mark 3 1 roll   % m a f
-  forall marray   % a'
+/' { % [v1 v2 ... vn] f n s -- [v1 f v2 f ... vn f]
+  [ % as f n s [
+    % take from 0 up to s-1
+    counttomark 
+    % execute f
+    % take from s-1 to n-1, executing f after each
+    3 2 roll    % as f [ n s
+    1 sub       % as f [ n s-1
+    exch 1 exch % as f [ s 1 n
+    { 
+    } forall
+  ]   % a'
 } bind def
 
 /" { % [a1 a2 ... an] [b1 b2 ... bn] f -- [a1 b1 f a2 b2 f ... an bn f]
