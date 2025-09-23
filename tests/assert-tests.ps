@@ -106,7 +106,7 @@
     exec
 } bind def
 
-% (sum reduce over an array should give the sum) {[5 3 2] {(before) debug add (after) debug} "} [10] assert-stack
+(sum reduce over an array should give the sum) {[5 3 2] {(before) debug add (after) debug} "} [10] assert-stack
 (items-at adds the kth item from several arrays to the stack) {[[4 5 6] [7 8 9]] 1 items-at} [5 8] assert-stack
 % (sum reduce over an array should give the sum) {[5 3 2] {add} reduce} [10] assert-stack
 % (sum zipwith should be elementwise sum) {[5 3 2] [8 3 1] {add} 2 zipwith} [[13 6 3]] assert-stack
