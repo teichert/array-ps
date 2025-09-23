@@ -95,11 +95,16 @@
     {max} reduce
 } bind def
 
+/no-arrays { % v1 ... vk k -- bool
+    array astore {type /arraytype ne} each
+    {and} reduce
+} bind def
+
 /rank-polymorphic { % v1 ... vk f k - effects of f
-    dup no-arrays {
+    dup 2 add copy exch pop no-arrays { % v1 ... vk f k
         pop exec
     } {
-        dup 1 add copy exch pop  % ... v1 ... vk k
+        dup 2 add copy exch pop  % ... v1 ... vk k
         longest-length
         zipwithn
     } ifelse
@@ -119,4 +124,4 @@
 (mapping the double over an array should double each element) {[5 3 2] {dup add} each} [[10 6 4]] assert-stack
 (mapping over and empty array should give an empty array) {[] {dup add} each} [[]] assert-stack
 (longest-length works on scalars and arrays) {[2 5] 4 [5 3 2 1 8] [3 9 5] 4 longest-length} [5] assert-stack
-% (pervasive add works on scalar to array) {4 [3 9 5] +} [[7 13 9]] assert-stack
+(pervasive add works on scalar to array) {4 [3 9 5] +} [[7 13 9]] assert-stack
