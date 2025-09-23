@@ -108,6 +108,8 @@
         longest-length           % v1 ... vk f k n
         3 copy pop {rank-polymorphic} % v1 ... vk f k n f k {rp}
         3 array astore cvx       % v1 ... vk f k n {f k {rp}}
+        4 -1 roll pop            % v1 ... vk k n {f k {rp}}
+        3 1 roll                 % v1 ... vk {f k {rp}} k n
         zipwithn
     } ifelse
 } def
