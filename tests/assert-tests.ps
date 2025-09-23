@@ -126,3 +126,4 @@
 (longest-length works on scalars and arrays) {[2 5] 4 [5 3 2 1 8] [3 9 5] 4 longest-length} [5] assert-stack
 (pervasive add works on scalar to array) {4 [3 9 5] +} [[7 13 9]] assert-stack
 (pervasive add works on scalar to scalar) {[3 9 5] 4 +} [[7 13 9]] assert-stack
+(pervasive add works on array to array) {[3 9 5] [1 5 3] +} [[4 14 8]] assert-stack
