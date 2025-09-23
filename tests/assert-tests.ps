@@ -26,19 +26,6 @@
     counttomark 2 add -2 roll pop pop % a1[i] ... ak[i]
 } def 
 
-% /items-at { % a1 a2 ... ak k i -- a1[i] a2[i] ... ak[i]
-%     mark      % a1 a2 ... ak k i m
-%     2 index 3 add 3 roll % k i m a1 a2 ... ak
-%     1 1 counttomark 2 add index % k i m a1 a2 ... ak 1 1 k
-%     { % j
-%         counttomark exch 1 add sub index % aj
-%         counttomark 1 add index          % aj i
-%         get
-%     } for % k i m a1 a2 ... ak a1[i] a2[i] ... ak[i]    
-%     counttomark 3 add counttomark 2 add index roll  % a1[i] a2[i] ... ak[i] k i m a1 a2 ... ak
-%     cleartomark pop pop
-% } bind def
-
 /overk { % a1 a2 ... ak f k s n -- [a1[0] ... ak[0] a1[s-1] ... ak[s-1] f a1[s] ... ak[s] f ... a1[n] ... ak[n] f]
     2 index array  % a1 a2 ... ak f k s n A
     5 1 roll       % a1 a2 ... ak A f k s n
@@ -63,36 +50,14 @@
     5 { pop } repeat
 } bind def
 
-/over { % [a1 a2 ... an] f s -- [a1 ... as as+1 f ... an f]
-    1 exch         % A f k s
-    3 index length % A f k s n
-    overk
-    % [                         %  [a1 a2 ... an] f s m
-    % counttomark 3 add index   %  [a1 a2 ... an] f s m a
-    % 0 counttomark 1 add index %  [a1 a2 ... an] f s m a 0 s
-    % getinterval aload pop     %  [a1 a2 ... an] f s m a1 ... as
-    % counttomark 3 add index   %  [a1 a2 ... an] f s m a1 ... as a
-    % counttomark 1 add index   %  [a1 a2 ... an] f s m a1 ... as a s
-    % dup neg                   %  [a1 a2 ... an] f s m a1 ... as a s -s
-    % 2 index length add        %  [a1 a2 ... an] f s m a1 ... as a s n-s
-    % getinterval               %  [a1 a2 ... an] f s m a1 ... as [as+1 ... an]
-    % counttomark 2 add index   %  [a1 a2 ... an] f s m a1 ... as [as+1 ... an] f
-    % forall                    %  [a1 a2 ... an] f s m a1 ... as as+1 f ... an f
-    % counttomark 4 add -3 roll %  m a1 ... as as+1 f ... an f [a1 a2 ... an] f s
-    % pop pop pop               %  m a1 ... as as+1 f ... an
-    % ]
-} bind def
-
-% /overB { % [a1 a2 ... an] f s -- [a1 ... as as+1 f ... an f]
-%     1 exch overk
-% } bind def
-
 /each { % [a1 a2 ... an] f -- [a1 f a2 f ... an f]
-    0 over
+    1 1 3 index length    % a f 1 1 n
+    overk
 } bind def
 
-/zipwith { % a1 a2 ... ak k f -- [a1[s1] ... ak[1] f ... a1[n] ... ak[n] f]
-    0 overk
+/zipwith { % a1 a2 ... ak f k -- [a1[s1] ... ak[1] f ... a1[n] ... ak[n] f]
+    1 3 index length
+    overk
 } bind def
 
 /reduce { % [a1 a2 ... an] f -- a1 f a2 f ... an f
@@ -106,10 +71,9 @@
 } bind def
 
 % (sum reduce over an array should give the sum) {[5 3 2] {(before) debug add (after) debug} "} [10] assert-stack
-% (items-at adds the kth item from several arrays to the stack) {[[4 5 6] [7 8 9]] 1 items-at} [5 8] assert-stack
+(items-at adds the kth item from several arrays to the stack) {[[4 5 6] [7 8 9]] 1 items-at} [5 8] assert-stack
 (sum reduce over an array should give the sum) {[5 3 2] {add} reduce} [10] assert-stack
-% (sum reduce over an array should give the sum) {[5 3 2] {add} reduce} [10] assert-stack
-% (sum zipwith should be elementwise sum) {[5 3 2] [8 3 1] {add} 2 zipwith} [[13 6 3]] assert-stack
-% (mapping the double over an array should double each element) {[5 3 2] {dup} each} [[5 5 3 3 2 2]] assert-stack
-% (mapping the double over an array should double each element) {[5 3 2] {dup add} each} [[10 6 4]] assert-stack
-% (mapping over and empty array should give an empty array) {[] {dup add} each} [[]] assert-stack
+(sum zipwith should be elementwise sum) {[5 3 2] [8 3 1] {add} 2 zipwith} [[13 6 3]] assert-stack
+(mapping the double over an array should double each element) {[5 3 2] {dup} each} [[5 5 3 3 2 2]] assert-stack
+(mapping the double over an array should double each element) {[5 3 2] {dup add} each} [[10 6 4]] assert-stack
+(mapping over and empty array should give an empty array) {[] {dup add} each} [[]] assert-stack
