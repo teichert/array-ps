@@ -47,7 +47,8 @@
 } bind def
 
 /overk { % a1 a2 ... ak f k s -- [a1[1] ... ak[1] a1[s] ... ak[s] a1[s+1] ... ak[s+1] f ... a1[n] ... ak[n] f]
-
+    [                         %  a1 a2 ... f k s m
+    ]
 } bind def
 
 /overB { % [a1 a2 ... an] f s -- [a1 ... as as+1 f ... an f]
