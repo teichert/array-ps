@@ -1,7 +1,7 @@
 /debug { % message -- 
     pstack
     ==
-} def
+} bind def
 
 /items-at { % [a1 a2 ... ak] i -- a1[i] a2[i] ... ak[i]
     mark  % A i m
@@ -14,7 +14,7 @@
         } if
     } forall % i m a1[i] ... ak[i]
     counttomark 2 add -2 roll pop pop % a1[i] ... ak[i]
-} def 
+} bind def 
 
 /overk { % a1 a2 ... ak f k s n -- [a1[0] ... ak[0] a1[s-1] ... ak[s-1] f a1[s] ... ak[s] f ... a1[n] ... ak[n] f]
     2 index array  % a1 a2 ... ak f k s n A
@@ -46,7 +46,9 @@
 } bind def
 
 /zipwith { % a1 a2 ... ak f k -- [a1[s1] ... ak[1] f ... a1[n] ... ak[n] f]
-    2 index length zipwithn
+    dup 2 add copy exch pop % a1 a2 ... ak f k a1 a2 ... ak k 
+    longest-length
+    zipwithn
 } bind def
 
 /zipwithn { % a1 a2 ... ak f k n -- [a1[s1] ... ak[1] f ... a1[n] ... ak[n] f]
@@ -90,16 +92,14 @@
 /rank-polymorphic { % v1 ... vk f k - effects of f
     dup 2 add copy exch pop no-arrays { % v1 ... vk f k
         pop exec
-    } {
-        dup 2 add copy exch pop  % ... v1 ... vk k
-        longest-length           % v1 ... vk f k n
-        3 copy pop /rank-polymorphic cvx % v1 ... vk f k n f k rank-polymorphic
-        3 array astore cvx       % v1 ... vk f k n {f k rank-polymorphic}
-        4 -1 roll pop            % v1 ... vk k n {f k rank-polymorphic}
-        3 1 roll                 % v1 ... vk {f k rank-polymorphic} k n
-        zipwithn
+    } { % v1 ... vk f k
+        2 copy /rank-polymorphic cvx % v1 ... vk f k f k rank-polymorphic
+        3 array astore cvx           % v1 ... vk f k {f k rank-polymorphic}
+        3 -1 roll pop                % v1 ... vk k {f k rank-polymorphic}
+        exch                         % v1 ... vk {f k rank-polymorphic} k
+        zipwith
     } ifelse
-} def
+} bind def
 
 /+ {
     {add} 2 rank-polymorphic
@@ -107,4 +107,34 @@
 
 /! {
     {exch mod} 2 rank-polymorphic
+} bind def
+
+/enlist {
+    1 array astore
+} bind def
+
+/eachleft { % [a11 a12 ... a1n] a2 f -- [(a11 a2 f) (a12 a2 f) ... (a1n a2 f)]
+    3 1 roll
+    enlist
+    3 -1 roll    
+    2 zipwith
+} bind def
+
+/eachright { % a1 [a21 a22 ... a2n] f -- [(a1 a21 f) (a1 a22 f) ... (an a2n f)]
+    3 -1 roll
+    enlist
+    3 1 roll
+    2 zipwith
+} bind def
+
+/pair {
+    2 array astore
+} bind def
+
+/cross { % a1 a2 f -- [[a1[1] a2[1]] [a1[1] a2[2]] ... [a1[n] a2[n]]]
+    /eachright cvx
+    /aload cvx
+    /pop cvx
+    4 array astore cvx
+    eachleft
 } bind def

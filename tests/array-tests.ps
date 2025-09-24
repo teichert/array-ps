@@ -9,55 +9,11 @@
 (mapping the double over an array should double each element) {[5 3 2] {dup} each} [[5 5 3 3 2 2]] assert-stack
 (mapping the double over an array should double each element) {[5 3 2] {dup add} each} [[10 6 4]] assert-stack
 (mapping over and empty array should give an empty array) {[] {dup add} each} [[]] assert-stack
-(longest-length works on scalars and arrays) {[2 5] 4 [5 3 2 1 8] [3 9 5] 4 longest-length} [5] assert-stack
+(longest-length works on scalars and arrays) {[2 5] 4 [8] [5 3 2 1 8] [3 9 5] 5 longest-length} [5] assert-stack
 (pervasive add works on scalar to array) {4 [3 9 5] +} [[7 13 9]] assert-stack
 (pervasive add works on scalar to scalar) {[3 9 5] 4 +} [[7 13 9]] assert-stack
 (pervasive add works on nested array to array) {[3 [9 5] 5] [1 5 3] +} [[4 [14 10] 8]] assert-stack
-
-/enlist {
-    1 array astore
-} bind def
-
-/eachleft {
-    enlist 2 zipwith
-} bind def
-
-/eachleft {
-    exch enlist exch 2 zipwith
-} bind def
-
-/pair {
-    2 array astore
-} bind def
-
-/cross { % a1 a2 f -- [[a1[1] a2[1]] [a1[1] a2[2]] ... [a1[n] a2[n]]]
-    1 array astore cvx
-    /eachright cvx
-    /aload cvx
-    /pop cvx
-    4 array astore cvx
-    eachleft
-} bind def
-
-/pairs { % a1 a2
-    {pair} cross
-} bind def
-
-% /life {
-%     [-1 0 1] {
-%         [-1 0 1] {
-
-%         }
-%     }
-% } bind def
-
-% [
-%     [1 1 1 0 0 0]
-%     [1 0 0 0 0 0]
-%     [0 1 0 0 0 0]
-%     [0 0 0 0 0 0]
-%     [0 0 0 0 0 0]
-% ] life
-
-(pairs gives a flat list of x,y pairs with x changing most slowly) {[1 2] [5 6] pairs} [[1 5] [1 6] [2 5] [2 6]] assert-stack
+(sum zipwith should reuse elements on the right) {[8 3 1] [7 3] {add} 2 zipwith} [[15 6 8]] assert-stack
+(eachleft combines each thing on the left with the single thing on the right) {[1 2] [7 8] {pair} eachleft} [[[1 [7 8]] [2 [7 8]]]] assert-stack
+(pairs gives a flat list of x,y pairs with x changing most slowly) {[1 2] [5 6] {pair} cross} [[[1 5] [1 6] [2 5] [2 6]]] assert-stack
 % (reshaping a 1-d array  [1 2 3 4] [2 2] reshape
