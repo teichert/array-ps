@@ -1,6 +1,10 @@
-/debug { % message -- 
+/dbg { % message -- 
     pstack
     ==
+} bind def
+
+/debug {
+    (debug) dbg
 } bind def
 
 /get-with-wrap { % a i -- a if a is not an array else a[i % a.length]
@@ -143,4 +147,14 @@
     /pop cvx
     4 array astore cvx
     eachleft
+} bind def
+
+/rot { % a by
+    [      % a by [
+    3 -1 roll % by [ a
+    aload pop % by [ a1 a2 ... an
+    counttomark % by [ a1 a2 ... an n
+    counttomark 2 add -1 roll % [ a1 a2 ... an n by
+    roll
+    ]
 } bind def

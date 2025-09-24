@@ -16,4 +16,7 @@
 (sum zipwith should reuse elements on the right) {[8 3 1] [7 3] {add} 2 zipwith} [[15 6 8]] assert-stack
 (eachleft combines each thing on the left with the single thing on the right) {[1 2] [7 8] {pair} eachleft} [[[1 [7 8]] [2 [7 8]]]] assert-stack
 (pairs gives a flat list of x,y pairs with x changing most slowly) {[1 2] [5 6] {pair} cross} [[[1 5] [1 6] [2 5] [2 6]]] assert-stack
-% (reshaping a 1-d array  [1 2 3 4] [2 2] reshape
+(rotate on empty array gives original) {[] 1 rot} [[]] assert-stack
+(rotate on singleton array gives original) {[3] 1 rot} [[3]] assert-stack
+(positive rotate by a scalar pushes values off the end of the array and on to the front) {[1 2 3 4] 1 rot} [[4 1 2 3]] assert-stack
+(negative positive rotate by a scalar pushes values off the left of the array and on to the right) {[1 2 3 4] -1 rot} [[2 3 4 1]] assert-stack
