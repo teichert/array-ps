@@ -70,13 +70,35 @@
     overk aload pop
 } bind def
 
+/scan { % [a1 a2 ... an] f
+    [ 3 1 roll
+    2 /copy cvx 3 -1 roll /exec cvx /exch cvx /pop cvx  % [ A 2 copy f exec exch pop
+    6 array astore cvx  % A {2 copy f exch pop}
+    reduce
+    ]
+} bind def
+
 /xdebug { % f --
     dup debug
     exec
 } bind def
 
+/reverse { % [a1 a2 ... an] -- [an ... a2 a1]
+    [ exch
+        { counttomark 1 roll } forall
+    ]
+} bind def
+
 /max {
     2 copy gt {
+        pop
+    } {
+        exch pop
+    } ifelse
+} bind def
+
+/min {
+    2 copy lt {
         pop
     } {
         exch pop
@@ -115,8 +137,28 @@
     {add} 2 rank-polymorphic
 } bind def
 
+/& {
+    {min} 2 rank-polymorphic
+} bind def
+
+/ieq {
+    {eq {1}{0} ifelse} 2 rank-polymorphic
+} bind def
+
+/* {
+    {mul} 2 rank-polymorphic
+} bind def
+
+/| {
+    {max} 2 rank-polymorphic
+} bind def
+
 /! {
     {exch mod} 2 rank-polymorphic
+} bind def
+
+/right {
+    exch pop
 } bind def
 
 /enlist {
@@ -149,7 +191,7 @@
     eachleft
 } bind def
 
-/rot { % a by
+/rotate { % a by
     [      % a by [
     3 -1 roll % by [ a
     aload pop % by [ a1 a2 ... an
@@ -160,5 +202,19 @@
 } bind def
 
 /rotate-each { % m by
-    {rot} eachleft
+    {rotate} eachleft
 } def
+
+/rotate2d { % m [vby hby]
+    aload pop % m vby hby
+    3 1 roll  % hby m vby
+    rotate    % hby m'
+    exch      % m' hby
+    rotate-each
+} bind def
+
+/range { % n -- [0 1 ... n-1]
+    [ 0 1 4 -1 roll 1 sub % [ 0 1 n-1
+    {} for
+    ]
+} bind def

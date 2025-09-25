@@ -16,8 +16,12 @@
 (sum zipwith should reuse elements on the right) {[8 3 1] [7 3] {add} 2 zipwith} [[15 6 8]] assert-stack
 (eachleft combines each thing on the left with the single thing on the right) {[1 2] [7 8] {pair} eachleft} [[[1 [7 8]] [2 [7 8]]]] assert-stack
 (pairs gives a flat list of x,y pairs with x changing most slowly) {[1 2] [5 6] {pair} cross} [[[1 5] [1 6] [2 5] [2 6]]] assert-stack
-(rotate on empty array gives original) {[] 1 rot} [[]] assert-stack
-(rotate on singleton array gives original) {[3] 1 rot} [[3]] assert-stack
-(positive rotate by a scalar pushes values off the end of the array and on to the front) {[1 2 3 4] 1 rot} [[4 1 2 3]] assert-stack
-(negative positive rotate by a scalar pushes values off the left of the array and on to the right) {[1 2 3 4] -1 rot} [[2 3 4 1]] assert-stack
+(rotate on empty array gives original) {[] 1 rotate} [[]] assert-stack
+(rotate on singleton array gives original) {[3] 1 rotate} [[3]] assert-stack
+(positive rotate by a scalar pushes values off the end of the array and on to the front) {[1 2 3 4] 1 rotate} [[4 1 2 3]] assert-stack
+(negative positive rotate by a scalar pushes values off the left of the array and on to the right) {[1 2 3 4] -1 rotate} [[2 3 4 1]] assert-stack
 (rotate-each rotates columns) {[[1 3 4] [5 6 7]] 1 rotate-each} [[[4 1 3] [7 5 6]]] assert-stack
+(rotate-2d rotates rows and columns) {[[1 3 4] [5 6 7]] [1 1] rotate2d} [[[7 5 6] [4 1 3]]] assert-stack
+(range n returns [0 1 ... n-1]) {5 range} [[0 1 2 3 4]] assert-stack
+(scan works) {5 range {add} scan} [[0 1 3 6 10]] assert-stack
+(reverse of [0 1 2 3 4] is [4 3 2 1 0]) {5 range reverse} [[4 3 2 1 0]] assert-stack
