@@ -26,6 +26,31 @@
     counttomark 2 add -2 roll pop pop % a1[i] ... ak[i]
 } bind def 
 
+/store-near-top { % v1 ... vk s1 ... sj k j -- [v1 ... vk] s1 ... sj
+    dup 3 1 roll  % v1 ... vk s1 ... sj j k j
+    2 add         % v1 ... vk s1 ... sj j k j+2
+    1 roll        % v1 ... vk k s1 ... sj j
+    array astore  % v1 ... vk k [s1 ... sj]
+    exch dup      % v1 ... vk [s1 ... sj] k k
+    3 1 roll      % v1 ... vk k [s1 ... sj] k
+    2 add 1 roll  % [s1 ... sj] v1 ... vk k
+    array astore  % [s1 ... sj] [v1 ... vk]
+    exch          % [v1 ... vk] [s1 ... sj]
+    aload pop     % [v1 ... vk] s1 ... sj
+} bind def
+
+/select-from-top { % vk ... v2 v1 k [i1 i2 ... ij] -- v[i1] v[i2] ... v[ij]
+    exch 1         % vk ... v2 v1 [i1 i2 ... ij] k 1
+    store-near-top % [vk ... v2 v1] [i1 i2 ... ij]
+    [ exch
+    {              % a [ ... i
+        counttomark 1 add index exch % a [ ... a i
+        get
+    } forall
+    ]
+    exch pop aload pop
+} bind def
+
 /overk { % a1 a2 ... ak f k s n -- [a1[0] ... ak[0] a1[s-1] ... ak[s-1] f a1[s] ... ak[s] f ... a1[n] ... ak[n] f]
     % [-3 4] [4 3 2 1 5] rearrange % f k s n A
     2 index array  % a1 a2 ... ak f k s n A
@@ -160,6 +185,10 @@
         exch                         % v1 ... vk {f k rank-polymorphic} k
         zipwith
     } ifelse
+} bind def
+
+/- {
+    {sub} 2 rank-polymorphic
 } bind def
 
 /+ {
