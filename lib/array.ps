@@ -82,7 +82,7 @@
     range { get-with-wrap } eachright
 } bind def
 
-/drop { % [a1 a2 ... an] k -- [ak+1 ... an]
+/droppos { % [a1 a2 ... an] k -- [ak+1 ... an]
     2 copy exch length % A k k n
     ge {pop pop []}
     {
@@ -92,6 +92,17 @@
         {pop} repeat
         ]
         reverse
+    } ifelse
+} bind def
+
+/drop { % A k -- A'
+    dup 0 lt { % A k
+        neg
+        exch reverse exch % Ar -k
+        droppos
+        reverse
+    } {
+        droppos
     } ifelse
 } bind def
 
@@ -220,7 +231,7 @@
 
 /rotate-each { % m by
     {rotate} eachleft
-} def
+} bind def
 
 /rotate2d { % m [vby hby]
     aload pop % m vby hby
@@ -249,4 +260,21 @@
         exch drop % block-size remaining-items
         exch take
     } 3 zipwith
-} def
+} bind def
+
+/reshape { % items dims -- ndarray
+    dup length 
+    1 eq { % items dims
+        aload pop take
+    } { % items dims
+        dup 1 drop % items dims remaining-dims
+        3 1 roll   % remaining-dims items dims
+        0 get      % remaining-dims items d
+        2 index {mul} reduce % remaining-dims items d size
+        exch       % remaining-dims items size d
+        chunk % remaining-dims chunked-items
+        exch
+        {reshape}
+        eachleft
+    } ifelse
+} bind def
