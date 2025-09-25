@@ -78,6 +78,23 @@
     ]
 } bind def
 
+/take { % [a1 a2 ... an] k -- [a1 ... ak]
+    range { get-with-wrap } eachright
+} bind def
+
+/drop { % [a1 a2 ... an] k -- [ak+1 ... an]
+    2 copy exch length % A k k n
+    ge {pop pop []}
+    {
+        [ 3 -1 roll   % k [ A
+        reverse aload pop % k [ an ... a2 a1 
+        counttomark 2 add -1 roll % [ an ... a2 a1 k 
+        {pop} repeat
+        ]
+        reverse
+    } ifelse
+} bind def
+
 /xdebug { % f --
     dup debug
     exec

@@ -25,3 +25,7 @@
 (range n returns [0 1 ... n-1]) {5 range} [[0 1 2 3 4]] assert-stack
 (scan works) {5 range {add} scan} [[0 1 3 6 10]] assert-stack
 (reverse of [0 1 2 3 4] is [4 3 2 1 0]) {5 range reverse} [[4 3 2 1 0]] assert-stack
+(take works when there is enough) {5 range 3 take} [[0 1 2]] assert-stack
+(take wraps around when there isn't enough) {5 range 8 take} [[0 1 2 3 4 0 1 2]] assert-stack
+(drop works when there are some left) {5 range 2 drop} [[2 3 4]] assert-stack
+(drop gives empty when there isn't enough) {5 range 8 drop} [[]] assert-stack
