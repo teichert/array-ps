@@ -52,13 +52,10 @@
 } bind def
 
 /overk { % a1 a2 ... ak f k s n -- [a1[0] ... ak[0] a1[s-1] ... ak[s-1] f a1[s] ... ak[s] f ... a1[n] ... ak[n] f]
-    % [-3 4] [4 3 2 1 5] rearrange % f k s n A
-    2 index array  % a1 a2 ... ak f k s n A
-    5 1 roll       % a1 a2 ... ak A f k s n
-    2 index 5 add 4 roll % f k s n a1 a2 ak ... A
-    astore [   % f k s n A [
-    3 index 0 eq {
-        5 index exec  % run f if s is 0
+    2 index 4 store-near-top  % A f k s n
+    5 -1 roll [               % f k s n A [
+    3 index 0 eq {            % f k s n A [ s=0?
+        5 index exec          % if s=0 then run f
     } if
     0 1 counttomark 2 add index 1 sub % f k s n A [ ... 0 1 n-1
     { % f k s n A [ ... i
