@@ -27,6 +27,7 @@
 } bind def 
 
 /overk { % a1 a2 ... ak f k s n -- [a1[0] ... ak[0] a1[s-1] ... ak[s-1] f a1[s] ... ak[s] f ... a1[n] ... ak[n] f]
+    % [-3 4] [4 3 2 1 5] rearrange % f k s n A
     2 index array  % a1 a2 ... ak f k s n A
     5 1 roll       % a1 a2 ... ak A f k s n
     2 index 5 add 4 roll % f k s n a1 a2 ak ... A
