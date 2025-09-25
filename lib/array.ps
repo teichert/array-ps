@@ -235,3 +235,18 @@
     {} for
     ]
 } bind def
+
+/chunk { % items block-size num-blocks
+    2 copy mul % items block-size num-blocks total-count
+    4 -1 roll  % block-size num-blocks total-count items
+    exch take  % block-size num-blocks all-items
+    enlist
+    3 1 roll % [all-items] block-size num-blocks
+    range
+    { % all-items block-size blocks-skipped
+        1 index mul % all-items block-size num-to-skip
+        3 -1 roll % block-size num-to-skip all-items
+        exch drop % block-size remaining-items
+        exch take
+    } 3 zipwith
+} def

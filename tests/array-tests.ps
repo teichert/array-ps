@@ -29,3 +29,14 @@
 (take wraps around when there isn't enough) {5 range 8 take} [[0 1 2 3 4 0 1 2]] assert-stack
 (drop works when there are some left) {5 range 2 drop} [[2 3 4]] assert-stack
 (drop gives empty when there isn't enough) {5 range 8 drop} [[]] assert-stack
+(chunk chops up a flat array into multiple blocks of a particular size) {6 range 3 2 chunk} [[[0 1 2] [3 4 5]]] assert-stack
+(chunk chops up a flat array into multiple blocks of a particular size, wrapping if more items are needed) {4 range 3 2 chunk} [[[0 1 2] [3 0 1]]] assert-stack
+
+/reshape { % items dims -- ndarray
+    exch enlist exch
+    dup reverse {mul} scan reverse 1 rotate exch % [items] sizes dims
+    {chunk}        
+    3 1 zipwithn
+    aload pop
+} bind def
+(reshape from 1d to 2d works) {6 range [2 3] reshape} [[[0 1 2] [3 4 5]]] assert-stack
