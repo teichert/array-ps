@@ -79,20 +79,33 @@
     } forall
 } bind def
 
-/kzipwith { % a f initial-contents apply-from -- [*initial-contents a[0][0] a[1][0] ... a[k][0] ... a[k][apply-from-1] f! ... a[k][a.longest-length] f!]
-    3 index length-of-longest [ % a f initial-contents apply-from n [
-    3 pick aload pop             % a f apply-from n [ *initial-contents
-    0 1 counttomark 1 add pick 1 sub % a f apply-from [ *initial-contents 0 1 n-1
-    { % a f apply-from [ ... i
-        dup counttomark 3 add index 3 1 roll % a f apply-from [ ... a i i
-        counttomark 1 add index lt { % a f apply-from [ ... a i
-            items-at
-        } { % a apply-from f [ ... a i
-            items-at counttomark 2 add index exec
-        } ifelse
+/kzipwithaux { % a f initial-contents apply-from kget -- [*initial-contents a[0][0] a[1][0] ... a[k][0] ... a[k][apply-from-1] f! ... a[k][a.longest-length] f!]    
+    4 index length-of-longest [ % a f initial-contents apply-from kget n [
+    4 pick aload pop             % a f apply-from n kget [ *initial-contents
+    0 1 counttomark 1 add pick 1 sub % a f apply-from kget n [ *initial-contents 0 1 n-1
+    { % a f apply-from kget [ ... i
+        dup counttomark 4 add index 3 1 roll % a f apply-from kget [ ... a i i
+        counttomark 1 add 1 roll      % a f apply-from kget i [ ... a i
+        counttomark 2 add index exec  % a f apply-from kget i [ ... ai
+        counttomark 1 add pick        % a f apply-from kget [ ... ai i
+        counttomark 2 add index       % a f apply-from kget [ ... ai i apply-from
+        ge { % a f apply-from kget [ ... ai i>=apply-from
+            counttomark 3 add index
+            exec
+        } if
     } for
     ]
-    4 1 roll pop pop pop
+    5 1 roll pop pop pop pop
+} bind def
+
+/kzipwith { % a f initial-contents apply-from -- [*initial-contents a[0][0] a[1][0] ... a[k][0] ... a[k][apply-from-1] f! ... a[k][a.longest-length] f!]
+    /items-at cvx kzipwithaux
+} bind def
+
+/kzipwithpad { % a f initial-contents apply-from padding -- [*initial-contents a[0][0] a[1][0] ... a[k][0] ... a[k][apply-from-1] f! ... a[k][a.longest-length] f!]
+    /items-at cvx 2 array astore cvx
+    debug
+    kzipwithaux
 } bind def
 
 /each { % [a1 a2 ... an] f -- [a1 f a2 f ... an f]
@@ -299,4 +312,15 @@
 /getnd { % A [i0 ... ik]
     {get-with-wrap}
     3 -1 roll fold
+} bind def
+
+/shape { % A
+    [ exch
+    dup type /arraytype eq neg {
+        pop 0
+    } {
+        {shape} each
+        kzipwith
+    } ifelse
+    ]
 } bind def
