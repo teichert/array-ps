@@ -26,6 +26,10 @@
     counttomark 2 add -2 roll pop pop % a1[i] ... ak[i]
 } bind def 
 
+/pick { % vk vk-1 ... v1 v0 -- vk-1 ... v1 v0 vk
+    1 add -1 roll
+} bind def
+
 /store-near-top { % v1 ... vk s1 ... sj k j -- [v1 ... vk] s1 ... sj
     dup 3 1 roll  % v1 ... vk s1 ... sj j k j
     2 add         % v1 ... vk s1 ... sj j k j+2
@@ -39,17 +43,18 @@
     aload pop     % [v1 ... vk] s1 ... sj
 } bind def
 
-/select-from-top { % vk ... v2 v1 k [i1 i2 ... ij] -- v[i1] v[i2] ... v[ij]
-    exch 1         % vk ... v2 v1 [i1 i2 ... ij] k 1
-    store-near-top % [vk ... v2 v1] [i1 i2 ... ij]
-    [ exch
-    {              % a [ ... i
-        counttomark 1 add index exch % a [ ... a i
-        get
-    } forall
-    ]
-    exch pop aload pop
-} bind def
+% /select-from-top { % v0 ... vk-1 k [i1 i2 ... ij] -- v[i1] v[i2] ... v[ij]
+%     exch 1         % v0 ... vk-1 [i1 i2 ... ij] k 1
+%     exch pop aload pop
+%     store-near-top % [v0 ... vk-1] [i1 i2 ... ij]
+%     debug
+%     [ exch
+%     {              % a [ ... i
+%         counttomark 1 add index exch % a [ ... a i
+%         get
+%     } forall
+%     ]
+% } bind def
 
 /overk { % a1 a2 ... ak f k s n -- [a1[0] ... ak[0] a1[s-1] ... ak[s-1] f a1[s] ... ak[s] f ... a1[n] ... ak[n] f]
     2 index 4 store-near-top  % A f k s n
