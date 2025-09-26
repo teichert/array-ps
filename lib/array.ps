@@ -37,6 +37,17 @@
     } ifelse
 } bind def
 
+/get-with-pad { % a i pad -- a[i] if a is an array and i < a.length, otherwise pad
+    2 index type /arraytype eq   % a i pad isarray
+    2 index                      % a i pad isarray i
+    4 index length lt            % a i pad isarray i<length
+    and {                        % a i pad
+        pop get
+    } {
+        3 1 roll pop pop
+    } ifelse
+} bind def
+
 /items-at { % [a1 a2 ... ak] i -- a1[i] a2[i] ... ak[i]
     mark  % A i m
     3 -1 roll % i m A
@@ -45,6 +56,17 @@
         get-with-wrap
     } forall % i m a1[i] ... ak[i]
     counttomark 2 add -2 roll pop pop % a1[i] ... ak[i]
+} bind def 
+
+/items-at-pad { % [a1 a2 ... ak] i pad -- a1[i] a2[i] ... ak[i]
+    mark  % A i pad m
+    4 -1 roll % i pad m A
+    {  % i pad m ... aj
+        counttomark 2 add index % i pad m ... aj i
+        counttomark 1 add index % i pad m ... aj i pad
+        get-with-pad
+    } forall % i pad m a1[i] ... ak[i]
+    counttomark 3 add -3 roll pop pop pop % a1[i] ... ak[i]
 } bind def 
 
 /pick { % vk vk-1 ... v1 v0 -- vk-1 ... v1 v0 vk
@@ -81,7 +103,7 @@
 
 /kzipwithaux { % a f initial-contents apply-from kget -- [*initial-contents a[0][0] a[1][0] ... a[k][0] ... a[k][apply-from-1] f! ... a[k][a.longest-length] f!]    
     4 index length-of-longest [ % a f initial-contents apply-from kget n [
-    4 pick aload pop             % a f apply-from n kget [ *initial-contents
+    4 pick aload pop             % a f apply-from kget n [ *initial-contents
     0 1 counttomark 1 add pick 1 sub % a f apply-from kget n [ *initial-contents 0 1 n-1
     { % a f apply-from kget [ ... i
         dup counttomark 4 add index 3 1 roll % a f apply-from kget [ ... a i i
@@ -103,8 +125,7 @@
 } bind def
 
 /kzipwithpad { % a f initial-contents apply-from padding -- [*initial-contents a[0][0] a[1][0] ... a[k][0] ... a[k][apply-from-1] f! ... a[k][a.longest-length] f!]
-    /items-at cvx 2 array astore cvx
-    debug
+    /items-at-pad cvx 2 array astore cvx  % a f initial-contents apply-from get
     kzipwithaux
 } bind def
 
