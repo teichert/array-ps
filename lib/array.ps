@@ -110,6 +110,11 @@
     [] 1 kzipwith aload pop
 } bind def
 
+/fold { % [a1 a2 ... an] f v1 -- v1 a1 f a2 f ... an f
+    1 2 store-near-top
+    enlist 0 kzipwith aload pop
+} bind def
+
 /scan { % [a1 a2 ... an] f
     [ 3 1 roll
     2 /copy cvx 3 -1 roll /exec cvx /exch cvx /pop cvx  % [ A 2 copy f exec exch pop
@@ -289,4 +294,9 @@
         {reshape}
         eachleft
     } ifelse
+} bind def
+
+/getnd { % A [i0 ... ik]
+    {get-with-wrap}
+    3 -1 roll fold
 } bind def
