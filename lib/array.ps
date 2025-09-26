@@ -7,6 +7,11 @@
     (debug) dbg
 } bind def
 
+/xdebug { % f --
+    dup debug
+    exec
+} bind def
+
 /max {
     2 copy gt {
         pop
@@ -40,12 +45,6 @@
         get-with-wrap
     } forall % i m a1[i] ... ak[i]
     counttomark 2 add -2 roll pop pop % a1[i] ... ak[i]
-} bind def 
-
-/remote-items-at { % [a1 a2 ... ak] s1 ... ss i s -- [a1 a2 ... ak] s1 ... ss a1[i] a2[i] ... ak[i]
-    1 add index
-    exch
-    items-at
 } bind def 
 
 /pick { % vk vk-1 ... v1 v0 -- vk-1 ... v1 v0 vk
@@ -96,41 +95,6 @@
     4 1 roll pop pop pop
 } bind def
 
-% /select-from-top { % v0 ... vk-1 k [i1 i2 ... ij] -- v[i1] v[i2] ... v[ij]
-%     exch 1         % v0 ... vk-1 [i1 i2 ... ij] k 1
-%     exch pop aload pop
-%     store-near-top % [v0 ... vk-1] [i1 i2 ... ij]
-%     debug
-%     [ exch
-%     {              % a [ ... i
-%         counttomark 1 add index exch % a [ ... a i
-%         get
-%     } forall
-%     ]
-% } bind def
-
-% /overk { % a1 a2 ... ak f k s n -- [a1[0] ... ak[0] a1[s-1] ... ak[s-1] f a1[s] ... ak[s] f ... a1[n] ... ak[n] f]
-%     2 index 4 store-near-top  % A f k s n
-%     5 -1 roll [               % f k s n A [
-%     3 index 0 eq {            % f k s n A [ s=0?
-%         5 index exec          % if s=0 then run f
-%     } if
-%     0 1 counttomark 2 add index 1 sub % f k s n A [ ... 0 1 n-1
-%     { % f k s n A [ ... i
-%         counttomark 1 roll % [ i ... 
-%         counttomark 1 add index % ... A
-%         counttomark 1 sub index % ... A i
-%         items-at   % ... a1i a2i ... aki
-%         counttomark -1 roll
-%         counttomark 3 add index 1 sub % ... i s-1
-%         ge
-%         { counttomark 5 add index exec } if
-%     } for
-%     ]
-%     6 1 roll
-%     5 { pop } repeat
-% } bind def
-
 /each { % [a1 a2 ... an] f -- [a1 f a2 f ... an f]
     1 1 store-near-top
     [] 0 kzipwith
@@ -139,20 +103,11 @@
 /zipwith { % a1 a2 ... ak f k -- [a1[s1] ... ak[1] f ... a1[n] ... ak[n] f]
     1 store-near-top
     [] 0 kzipwith
-    % dup 2 add copy exch pop % a1 a2 ... ak f k a1 a2 ... ak k 
-    % longest-length
-    % zipwithn
 } bind def
-
-% /zipwithn { % a1 a2 ... ak f k n -- [a1[s1] ... ak[1] f ... a1[n] ... ak[n] f]
-%     1 exch overk
-% } bind def
 
 /reduce { % [a1 a2 ... an] f -- a1 f a2 f ... an f
     1 1 store-near-top
     [] 1 kzipwith aload pop
-    % 1 2 3 index length    % a f 1 2 n
-    % overk aload pop
 } bind def
 
 /scan { % [a1 a2 ... an] f
@@ -167,7 +122,7 @@
     range { get-with-wrap } eachright
 } bind def
 
-/droppos { % [a1 a2 ... an] k -- [ak+1 ... an]
+/drop-positive { % [a1 a2 ... an] k -- [ak+1 ... an]
     2 copy exch length % A k k n
     ge {pop pop []}
     {
@@ -184,34 +139,17 @@
     dup 0 lt { % A k
         neg
         exch reverse exch % Ar -k
-        droppos
+        drop-positive
         reverse
     } {
-        droppos
+        drop-positive
     } ifelse
-} bind def
-
-/xdebug { % f --
-    dup debug
-    exec
 } bind def
 
 /reverse { % [a1 a2 ... an] -- [an ... a2 a1]
     [ exch
         { counttomark 1 roll } forall
     ]
-} bind def
-
-
-/longest-length { % a1 ... ak k -- length of longest
-    array astore {
-        dup type /arraytype ne {
-            pop 1
-        } {
-            length
-        } ifelse
-    } each
-    {max} reduce
 } bind def
 
 /no-arrays { % v1 ... vk k -- bool
