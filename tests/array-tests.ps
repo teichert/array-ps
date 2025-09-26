@@ -36,6 +36,7 @@
 (reshape from 1d to 2d works) {6 range [2 3] reshape} [[[0 1 2] [3 4 5]]] assert-stack
 (reshape from 1d to 3d works) {24 range [2 3 4] reshape} [[[[0 1 2 3] [4 5 6 7] [8 9 10 11]] [[12 13 14 15] [16 17 18 19] [20 21 22 23]]]] assert-stack
 (store-near-top packs k values that are j from the top of the stack into an array) {5  6 7  8 9 10  2 3 store-near-top} [5 [6 7] 8 9 10] assert-stack
+(apply-remote applies a function after c)
 % (select-from-top rearranges the things on the top of the stack) {5 6  7 8 9  3 [2 0] select-from-top} [5 6 9 7] assert-stack
 (pick is like index but it removes the value rather than copying it) {1 2 3 4 5 6 2 pick} [1 2 3 5 6 4] assert-stack
 % (zipfold is like zipwith but allows seed values and combines k arrays) {[1] [2] [3] [4] 3 {add add exch} zipfold} [[9 4]] assert-stack
