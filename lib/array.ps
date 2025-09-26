@@ -80,16 +80,16 @@
     } forall
 } bind def
 
-/kzipwith { % a initial-contents apply-from f -- [*initial-contents a[0][0] a[1][0] ... a[k][0] ... a[k][apply-from-1] f! ... a[k][a.longest-length] f!]
-    3 index length-of-longest [ % a initial-contents apply-from f n [
-    4 pick aload pop             % a apply-from f n [ *initial-contents
-    0 1 counttomark 1 add pick 1 sub % a apply-from f [ *initial-contents 0 1 n-1
-    { % a apply-from f [ ... i
-        dup counttomark 3 add index 3 1 roll % a apply-from f [ ... a i i
-        counttomark 2 add index lt { % a apply-from f [ ... a i
+/kzipwith { % a f initial-contents apply-from -- [*initial-contents a[0][0] a[1][0] ... a[k][0] ... a[k][apply-from-1] f! ... a[k][a.longest-length] f!]
+    3 index length-of-longest [ % a f initial-contents apply-from n [
+    3 pick aload pop             % a f apply-from n [ *initial-contents
+    0 1 counttomark 1 add pick 1 sub % a f apply-from [ *initial-contents 0 1 n-1
+    { % a f apply-from [ ... i
+        dup counttomark 3 add index 3 1 roll % a f apply-from [ ... a i i
+        counttomark 1 add index lt { % a f apply-from [ ... a i
             items-at
         } { % a apply-from f [ ... a i
-            items-at counttomark 1 add index exec
+            items-at counttomark 2 add index exec
         } ifelse
     } for
     ]
@@ -109,46 +109,50 @@
 %     ]
 % } bind def
 
-/overk { % a1 a2 ... ak f k s n -- [a1[0] ... ak[0] a1[s-1] ... ak[s-1] f a1[s] ... ak[s] f ... a1[n] ... ak[n] f]
-    2 index 4 store-near-top  % A f k s n
-    5 -1 roll [               % f k s n A [
-    3 index 0 eq {            % f k s n A [ s=0?
-        5 index exec          % if s=0 then run f
-    } if
-    0 1 counttomark 2 add index 1 sub % f k s n A [ ... 0 1 n-1
-    { % f k s n A [ ... i
-        counttomark 1 roll % [ i ... 
-        counttomark 1 add index % ... A
-        counttomark 1 sub index % ... A i
-        items-at   % ... a1i a2i ... aki
-        counttomark -1 roll
-        counttomark 3 add index 1 sub % ... i s-1
-        ge
-        { counttomark 5 add index exec } if
-    } for
-    ]
-    6 1 roll
-    5 { pop } repeat
-} bind def
+% /overk { % a1 a2 ... ak f k s n -- [a1[0] ... ak[0] a1[s-1] ... ak[s-1] f a1[s] ... ak[s] f ... a1[n] ... ak[n] f]
+%     2 index 4 store-near-top  % A f k s n
+%     5 -1 roll [               % f k s n A [
+%     3 index 0 eq {            % f k s n A [ s=0?
+%         5 index exec          % if s=0 then run f
+%     } if
+%     0 1 counttomark 2 add index 1 sub % f k s n A [ ... 0 1 n-1
+%     { % f k s n A [ ... i
+%         counttomark 1 roll % [ i ... 
+%         counttomark 1 add index % ... A
+%         counttomark 1 sub index % ... A i
+%         items-at   % ... a1i a2i ... aki
+%         counttomark -1 roll
+%         counttomark 3 add index 1 sub % ... i s-1
+%         ge
+%         { counttomark 5 add index exec } if
+%     } for
+%     ]
+%     6 1 roll
+%     5 { pop } repeat
+% } bind def
 
 /each { % [a1 a2 ... an] f -- [a1 f a2 f ... an f]
-    1 1 3 index length    % a f 1 1 n
-    overk
+    1 1 store-near-top
+    [] 0 kzipwith
 } bind def
 
 /zipwith { % a1 a2 ... ak f k -- [a1[s1] ... ak[1] f ... a1[n] ... ak[n] f]
-    dup 2 add copy exch pop % a1 a2 ... ak f k a1 a2 ... ak k 
-    longest-length
-    zipwithn
+    1 store-near-top
+    [] 0 kzipwith
+    % dup 2 add copy exch pop % a1 a2 ... ak f k a1 a2 ... ak k 
+    % longest-length
+    % zipwithn
 } bind def
 
-/zipwithn { % a1 a2 ... ak f k n -- [a1[s1] ... ak[1] f ... a1[n] ... ak[n] f]
-    1 exch overk
-} bind def
+% /zipwithn { % a1 a2 ... ak f k n -- [a1[s1] ... ak[1] f ... a1[n] ... ak[n] f]
+%     1 exch overk
+% } bind def
 
 /reduce { % [a1 a2 ... an] f -- a1 f a2 f ... an f
-    1 2 3 index length    % a f 1 2 n
-    overk aload pop
+    1 1 store-near-top
+    [] 1 kzipwith aload pop
+    % 1 2 3 index length    % a f 1 2 n
+    % overk aload pop
 } bind def
 
 /scan { % [a1 a2 ... an] f
