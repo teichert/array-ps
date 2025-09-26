@@ -94,6 +94,14 @@
     } ifelse
 } bind def
 
+/length-or-0 { % length of the array or 0 if not an array
+    dup type /arraytype eq {
+        length
+    } {
+        pop 0
+    } ifelse
+} bind def
+
 /length-of-longest { % [a1 ... ak] -- n
     0 exch {
         length-or-1
@@ -191,13 +199,16 @@
     ]
 } bind def
 
-/no-arrays { % v1 ... vk k -- bool
-    array astore {type /arraytype ne} each
-    {and} reduce
+/no-arrays { % [v1 ... vk] -- bool
+    {type /arraytype ne} each {and} reduce
+} bind def
+
+/kno-arrays { % v1 ... vk k -- bool
+    array astore no-arrays
 } bind def
 
 /rank-polymorphic { % v1 ... vk f k - effects of f
-    dup 2 add copy exch pop no-arrays { % v1 ... vk f k
+    dup 2 add copy exch pop kno-arrays { % v1 ... vk f k
         pop exec
     } { % v1 ... vk f k
         2 copy /rank-polymorphic cvx % v1 ... vk f k f k rank-polymorphic
@@ -336,18 +347,24 @@
 } bind def
 
 
-
 /shape { % A
-    dup type /arraytype eq not {
+    dup type /arraytype eq not { % scalar, return []
         pop []
-    } { % A
-        dup length exch  % n A
-        dup {type /arraytype eq not} each {and} reduce
-        { % no nested arrays, then return length
-            pop 1 array astore
-        } {
-            {shape} each {|} reduce [ % n ds [
-            3 1 roll aload pop ]
+    } { % A                      % empty array, return [0]
+        dup length 0 eq {
+           pop [0]
+        } { % A                  % no nested, return [length]
+           dup no-arrays {
+              length 1 array astore
+           } {                   % recursively compute shapes and max over them
+              dup length exch    % n A
+              {shape} each {
+                2 array astore {max} [] 0 0 kzipwithpad
+              } reduce           % n dims'
+              [
+                3 1 roll aload pop
+              ]                  % dims
+           } ifelse
         } ifelse
     } ifelse
 } bind def
