@@ -335,13 +335,19 @@
     3 -1 roll fold
 } bind def
 
+
+
 /shape { % A
-    [ exch
-    dup type /arraytype eq neg {
-        pop 0
-    } {
-        {shape} each
-        kzipwith
+    dup type /arraytype eq not {
+        pop []
+    } { % A
+        dup length exch  % n A
+        dup {type /arraytype eq not} each {and} reduce
+        { % no nested arrays, then return length
+            pop 1 array astore
+        } {
+            {shape} each {|} reduce [ % n ds [
+            3 1 roll aload pop ]
+        } ifelse
     } ifelse
-    ]
 } bind def
