@@ -7,6 +7,22 @@
     (debug) dbg
 } bind def
 
+/max {
+    2 copy gt {
+        pop
+    } {
+        exch pop
+    } ifelse
+} bind def
+
+/min {
+    2 copy lt {
+        pop
+    } {
+        exch pop
+    } ifelse
+} bind def
+
 /get-with-wrap { % a i -- a if a is not an array else a[i % a.length]
     1 index type /arraytype eq {
         1 index length mod
@@ -61,23 +77,23 @@
     0 exch {
         length-or-1
         max
-    } foreach
+    } forall
 } bind def
 
-/kzipwith { % a initial-contents apply-after f -- [*initial-contents a[0][0] a[1][0] ... a[k][0] ... a[k][apply-after-1] f! ... a[k][a.longest-length] f!]
-    3 index length-of-longest [ % a initial-contents apply-after f n [
-    4 pick aload pop             % a apply-after f n [ *initial-contents
-    0 1 counttomark 1 pick 1 sub % a apply-after f [ *initial-contents 0 1 n-1
-    { % a apply-after f [ ... i
-        dup counttomark 3 index 3 1 roll % a apply-after f [ ... a i i
-        counttomark 2 add index lt {
+/kzipwith { % a initial-contents apply-from f -- [*initial-contents a[0][0] a[1][0] ... a[k][0] ... a[k][apply-from-1] f! ... a[k][a.longest-length] f!]
+    3 index length-of-longest [ % a initial-contents apply-from f n [
+    4 pick aload pop             % a apply-from f n [ *initial-contents
+    0 1 counttomark 1 add pick 1 sub % a apply-from f [ *initial-contents 0 1 n-1
+    { % a apply-from f [ ... i
+        dup counttomark 3 add index 3 1 roll % a apply-from f [ ... a i i
+        counttomark 2 add index lt { % a apply-from f [ ... a i
             items-at
-        } {
+        } { % a apply-from f [ ... a i
             items-at counttomark 1 add index exec
         } ifelse
     } for
     ]
-    4 roll 1 pop pop pop
+    4 1 roll pop pop pop
 } bind def
 
 % /select-from-top { % v0 ... vk-1 k [i1 i2 ... ij] -- v[i1] v[i2] ... v[ij]
@@ -182,21 +198,6 @@
     ]
 } bind def
 
-/max {
-    2 copy gt {
-        pop
-    } {
-        exch pop
-    } ifelse
-} bind def
-
-/min {
-    2 copy lt {
-        pop
-    } {
-        exch pop
-    } ifelse
-} bind def
 
 /longest-length { % a1 ... ak k -- length of longest
     array astore {
