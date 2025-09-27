@@ -119,7 +119,7 @@
     } forall
 } bind def
 
-/kzipwithaux { % a f initial-contents apply-from kget -- [*initial-contents a[0][0] a[1][0] ... a[k][0] ... a[k][apply-from-1] f! ... a[k][a.longest-length] f!]    
+/azipwithaux { % a f initial-contents apply-from kget -- [*initial-contents a[0][0] a[1][0] ... a[k][0] ... a[k][apply-from-1] f! ... a[k][a.longest-length] f!]    
     4 index length-of-longest [ % a f initial-contents apply-from kget n [
     4 pick aload pop             % a f apply-from kget n [ *initial-contents
     0 1 counttomark 1 add pick 1 sub % a f apply-from kget n [ *initial-contents 0 1 n-1
@@ -138,33 +138,34 @@
     5 1 roll pop pop pop pop
 } bind def
 
-/kzipwith { % a f initial-contents apply-from -- [*initial-contents a[0][0] a[1][0] ... a[k][0] ... a[k][apply-from-1] f! ... a[k][a.longest-length] f!]
-    /items-at cvx kzipwithaux
+/azipwith { % a f initial-contents apply-from -- [*initial-contents a[0][0] a[1][0] ... a[k][0] ... a[k][apply-from-1] f! ... a[k][a.longest-length] f!]
+    /items-at cvx azipwithaux
 } bind def
 
-/kzipwithpad { % a f initial-contents apply-from padding -- [*initial-contents a[0][0] a[1][0] ... a[k][0] ... a[k][apply-from-1] f! ... a[k][a.longest-length] f!]
+/azipwithpad { % a f initial-contents apply-from padding -- [*initial-contents a[0][0] a[1][0] ... a[k][0] ... a[k][apply-from-1] f! ... a[k][a.longest-length] f!]
     /items-at-pad cvx 2 array astore cvx  % a f initial-contents apply-from get
-    kzipwithaux
+    azipwithaux
 } bind def
 
 /each { % [a1 a2 ... an] f -- [a1 f a2 f ... an f]
     1 1 store-near-top
-    [] 0 kzipwith
+    [] 0 azipwith
 } bind def
 
 /zipwith { % a1 a2 ... ak f k -- [a1[s1] ... ak[1] f ... a1[n] ... ak[n] f]
     1 store-near-top
-    [] 0 kzipwith
+    [] 0
+    azipwith
 } bind def
 
 /reduce { % [a1 a2 ... an] f -- a1 f a2 f ... an f
     1 1 store-near-top
-    [] 1 kzipwith aload pop
+    [] 1 azipwith aload pop
 } bind def
 
 /fold { % [a1 a2 ... an] f v1 -- v1 a1 f a2 f ... an f
     1 2 store-near-top
-    enlist 0 kzipwith aload pop
+    enlist 0 azipwith aload pop
 } bind def
 
 /scan { % [a1 a2 ... an] f
@@ -373,7 +374,7 @@
            } {                   % recursively compute shapes and max over them
               dup length exch    % n A
               {shape} each {
-                2 array astore {max} [] 0 0 kzipwithpad
+                2 array astore {max} [] 0 0 azipwithpad
               } reduce           % n dims'
               [
                 3 1 roll aload pop
@@ -387,8 +388,8 @@
     {range} each {{pair} cross} reduce
 } bind def
 
-/aray-indexes { % A -- ixs
-    shape shape-indexes
+/array-indexes { % A -- ixs
+    (a) dbg shape (b) dbg shape-indexes
 } bind def
 
 /takepad { % A dims pad -- A'
