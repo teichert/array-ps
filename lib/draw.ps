@@ -1,0 +1,66 @@
+/get-page-width { currentpagedevice /PageSize get 0 get } def
+/get-page-height { currentpagedevice /PageSize get 1 get } def
+
+/torxy { % row col unit-length
+    3 1 roll     % unit-length row col
+    2 index mul  % unit-length row rx
+    3 1 roll     %  rx unit-length row
+    mul neg      %  rx ry
+} bind def
+
+/toxy { % row col unit-length
+    torxy get-page-height add
+} bind def
+
+/move { % start-units-from-top start-units-from-left unit-length
+    toxy (moveto) dbg moveto
+} bind def
+
+/rline { % drow dcol unit-length
+    torxy (rlineto) dbg rlineto
+} bind def
+
+/line {  % start-units-from-top start-units-from-left height-units width-units unit-length
+    5 -2 roll 2 index   % height-units width-units unit-length start-units-from-top start-units-from-left unit-length 
+    move
+    rline
+} bind def
+
+/linestroke {
+    newpath
+    line
+    2 setlinewidth
+    stroke
+} bind def
+
+/drawcell { % [row col] unit-length
+    dup 3 1 roll % unit-length [row col] unit-length
+    newpath
+    * aload pop 1 move % unit-length
+    [
+        [0 1]
+        [1 0]
+        [0 -1]
+    ] *
+    {
+        aload pop 1
+        rline
+    } forall
+    closepath
+    fill
+} bind def
+
+/column-line { % units-from-left units-high unit-length --
+    0 4 1 roll % 0 units-from-left units-high unit-length
+    0 exch     % 0 units-from-left units-high 0 unit-length
+    linestroke
+} bind def
+
+/row-line {    % units-from-top units-wide unit-length --
+    0 0 4 2 roll % units-from-top 0 0 units-wide unit-length
+    linestroke
+} bind def
+
+/finish-page {
+    clear initgraphics showpage
+} bind def
