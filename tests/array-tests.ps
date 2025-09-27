@@ -39,8 +39,11 @@
 (kzipwith) {[[1 2] [3 4] [5 6]] {pair} [7 8 9] 1 kzipwith} [[7 8 9 1 3 5 2 [4 6]]] assert-stack
 (fold) {[1 2 3] {add} 10 fold} [16] assert-stack
 (getnd) {[[1 3 5] [6 7 8]] [1 2] getnd} [8] assert-stack
+(short-circuit-and true) {7 true {1 index 7 eq} short-circuit-and} [7 true] assert-stack
+(short-circuit-and false) {7 false {1 index 7 eq blah blah} short-circuit-and} [7 false] assert-stack
 (get-with-pad) {[4 5 3] 2 0 get-with-pad} [3] assert-stack
 (get-with-pad) {[4 5 3] 3 0 get-with-pad} [0] assert-stack
+(get-with-pad) {5 3 0 get-with-pad} [0] assert-stack
 (items-at-pad) {[[4 5 3] [9]] 2 -6 items-at-pad} [3 -6] assert-stack
 (kzipwithpad) {[[1 3 5] [6 7 8 9 1]] {add} [] 0 0 kzipwithpad} [[7 10 13 9 1]] assert-stack
 (0d shape) {5 shape} [[]] assert-stack
@@ -50,3 +53,5 @@
 (2d shape when not even) {[[1 3] [6 7 8] [8 3] [3]] shape} [[4 3]] assert-stack
 (2d shape when not even) {[[1 3] [6 7 8] [] [3]] shape} [[4 3]] assert-stack
 (3d shape when not even) {[1 [] [2] [3 4 []]] shape} [[4 3 0]] assert-stack
+(3d shape when not even) {[1 [] [2] [3 4 []]] shape} [[4 3 0]] assert-stack
+(takepad) {[[1] [4 5]] [3 4] 0 takepad} [[[1 0 0 0] [4 5 0 0] [0 0 0 0]]] assert-stack

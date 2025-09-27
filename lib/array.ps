@@ -37,11 +37,21 @@
     } ifelse
 } bind def
 
+/short-circuit-and { % b1 {b2} -- (b1 b2 and)
+    exch dup { % {b2} b1
+        exch exec % b1 b2
+        and
+    } { % {b2} b1
+        pop pop false
+    } ifelse
+} bind def
+
 /get-with-pad { % a i pad -- a[i] if a is an array and i < a.length, otherwise pad
     2 index type /arraytype eq   % a i pad isarray
-    2 index                      % a i pad isarray i
-    4 index length lt            % a i pad isarray i<length
-    and {                        % a i pad
+    {
+        2 index                      % a i pad isarray i
+        4 index length lt            % a i pad isarray i<length
+    } short-circuit-and {                        % a i pad
         pop get
     } {
         3 1 roll pop pop
@@ -346,6 +356,10 @@
     3 -1 roll fold
 } bind def
 
+/getndpad { % A [i0 ... ik] pad
+    /get-with-pad cvx 2 array astore cvx
+    3 -1 roll fold
+} bind def
 
 /shape { % A
     dup type /arraytype eq not { % scalar, return []
@@ -367,4 +381,23 @@
            } ifelse
         } ifelse
     } ifelse
+} bind def
+
+/shape-indexes { % dims -- ixs
+    {range} each {{pair} cross} reduce
+} bind def
+
+/aray-indexes { % A -- ixs
+    shape shape-indexes
+} bind def
+
+/takepad { % A dims pad -- A'
+    1 index 4 1 roll % dims A dims pad
+    2 pick enlist
+    2 pick shape-indexes
+    2 pick enlist  % dims [A] indexeqqs [pad]
+    {
+        getndpad
+    } 3 zipwith  % dims values
+    exch reshape
 } bind def
