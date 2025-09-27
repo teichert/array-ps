@@ -64,3 +64,31 @@
 /finish-page {
     initgraphics showpage
 } bind def
+
+/compute-cell-size { % [rows columns] (also looks at current page height and width) -- cell-size
+    aload pop % rs cs
+    get-page-width exch div exch  % cwidth rs
+    get-page-height exch div min  %
+    floor
+} bind def
+
+/rowlines { % [rows columns] cell-size
+    exch
+    aload pop                         % cell-size rows columns
+    exch 1 add range exch 3 -1 roll { % rindexes columns cell-size
+        row-line
+    } 3 zipwith pop
+} bind def
+
+/columnslines { % [rows columns] cell-size
+    exch
+    aload pop 1 add range % cell-size rows cindexes
+    exch 3 -1 roll {      % cindexes rows cell-size
+        column-line
+    } 3 zipwith pop
+} bind def
+ 
+/drawgrid { % [rows columns] cell-size -- 
+    2 copy rowlines
+    columnslines
+} bind def
